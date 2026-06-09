@@ -7,6 +7,12 @@
 ### 📥 En Son Sürümü İndirin / Download the Latest Release
 - **[Sürüm Notları / Release Notes](https://github.com/ertugrulakdag/Karavul/releases/tag/v1.0.1)**
 
+📦 Installation / Kurulum
+
+- **TR:** Linkteki `KaravulSetup_v1.0.1.exe` dosyasını indirin ve çalıştırın. Kurulum tamamlandıktan sonra yönetim paneline `http://127.0.0.1:9060` adresinden erişebilirsiniz.
+*(Varsayılan Giriş Bilgileri -> Kullanıcı Adı: Admin | Şifre: admin)*
+- **EN:** Download and run the `KaravulSetup_v1.0.1.exe` file below. Once installed, you can access the management panel at `http://127.0.0.1:9060`.
+*(Default Login Credentials -> Username: Admin | Password: admin)*
 ---
 
 ## Özellikler / Features
