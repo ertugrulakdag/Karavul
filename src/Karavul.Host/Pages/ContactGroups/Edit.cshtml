@@ -1,0 +1,228 @@
+@page
+@model Karavul.Host.Pages.ContactGroups.EditModel
+@{
+    ViewData["Title"] = "İletişim Grubu Düzenle";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">İletişim Grubu Düzenle</h1>
+        <p class="page-subtitle">@Model.Name</p>
+    </div>
+    <a href="/ContactGroups" class="btn btn-secondary">← Geri</a>
+</div>
+
+<div class="card" style="max-width:640px;">
+    <form method="post">
+        <input name="Id" type="hidden" value="@Model.Id" />
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Grup Adı *</label>
+                <input name="Name" class="form-control" required value="@Model.Name" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tekrar Alarm Aralığı (dakika)</label>
+                <input name="RepeatAlertMinutes" class="form-control" type="number" min="0" value="@Model.RepeatAlertMinutes" />
+                <small style="color:var(--text-muted); font-size:0.74rem;">0 = sadece ilk seferde gönder</small>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label">Bildirim Kanalları</label>
+            <div style="display:flex; gap:20px; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label class="toggle-switch">
+                        <input id="chkEmail" name="SelectedNotificationTypes" type="checkbox" value="Email" @(Model.SelectedNotificationTypes.Contains(Karavul.Core.Enums.NotificationType.Email) ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="form-label" style="margin:0;">E-posta</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label class="toggle-switch">
+                        <input id="chkSms" name="SelectedNotificationTypes" type="checkbox" value="Sms" @(Model.SelectedNotificationTypes.Contains(Karavul.Core.Enums.NotificationType.Sms) ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="form-label" style="margin:0;">SMS</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label class="toggle-switch">
+                        <input id="chkTelegram" name="SelectedNotificationTypes" type="checkbox" value="Telegram" @(Model.SelectedNotificationTypes.Contains(Karavul.Core.Enums.NotificationType.Telegram) ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="form-label" style="margin:0;">Telegram</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-email" class="form-group" style="display: none;">
+            <label class="form-label">E-posta Adresleri</label>
+            <div id="emailContainer">
+                @for (int i = 0; i < Math.Max(1, Model.Emails.Count); i++)
+                {
+                    <div class="dynamic-input-row" style="display:flex;gap:8px;margin-bottom:8px;">
+                        <input type="email" name="Emails" class="form-control"
+                               value="@(i < Model.Emails.Count ? Model.Emails[i] : "")"
+                               placeholder="ornek@sirket.com" />
+                        <button type="button" class="btn btn-danger btn-icon btn-sm remove-input-row">&times;</button>
+                    </div>
+                }
+            </div>
+            <button type="button" id="addEmailBtn" class="btn btn-secondary btn-sm">+ E-posta Ekle</button>
+        </div>
+
+        <div id="section-sms" class="form-group" style="display: none;">
+            <label class="form-label">Telefon Numaraları</label>
+            <div id="phoneContainer">
+                @for (int i = 0; i < Math.Max(1, Model.Phones.Count); i++)
+                {
+                    <div class="dynamic-input-row" style="display:flex;gap:8px;margin-bottom:8px;">
+                        <input type="tel" name="Phones" class="form-control"
+                               value="@(i < Model.Phones.Count ? Model.Phones[i] : "")"
+                               placeholder="+90 5XX XXX XX XX" />
+                        <button type="button" class="btn btn-danger btn-icon btn-sm remove-input-row">&times;</button>
+                    </div>
+                }
+            </div>
+            <button type="button" id="addPhoneBtn" class="btn btn-secondary btn-sm">+ Telefon Ekle</button>
+        </div>
+
+        <div id="section-telegram" class="form-group" style="display: none;">
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                <label class="form-label" style="margin:0;">Telegram Chat ID'leri</label>
+                <svg onclick="document.getElementById('telegramHelpModal').showModal()" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:var(--text-muted); transition:color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'" title="Nasıl öğrenirim?"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <div id="telegramContainer">
+                @for (int i = 0; i < Math.Max(1, Model.Telegrams.Count); i++)
+                {
+                    <div class="dynamic-input-row" style="display:flex;gap:8px;margin-bottom:8px;">
+                        <input type="text" name="Telegrams" class="form-control"
+                               value="@(i < Model.Telegrams.Count ? Model.Telegrams[i] : "")"
+                               placeholder="-100000000000" />
+                        <button type="button" class="btn btn-danger btn-icon btn-sm remove-input-row">&times;</button>
+                    </div>
+                }
+            </div>
+            <button type="button" id="addTelegramBtn" class="btn btn-secondary btn-sm">+ Telegram ID Ekle</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+            <label class="toggle-switch">
+                <input name="IsActive" type="checkbox" value="true" @(Model.IsActive ? "checked" : "") />
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="form-label" style="margin:0;">Aktif</span>
+        </div>
+
+        <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a href="/ContactGroups" class="btn btn-secondary">İptal</a>
+            </div>
+            @if(Model.UpdatedAt != default)
+            {
+                <div style="font-size:0.75rem; color:var(--text-muted);">
+                    Son güncelleme: @(Model.UpdatedBy ?? "Bilinmiyor") (@Model.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm"))
+                </div>
+            }
+        </div>
+    </form>
+</div>
+
+<!-- Telegram Help Modal -->
+<dialog id="telegramHelpModal" style="border:none; border-radius:12px; padding:0; box-shadow:0 20px 40px rgba(0,0,0,0.3); max-width:500px; width:100%; margin:auto; background:var(--bg-surface); color:var(--text-primary); overflow:hidden;">
+    <div style="background:var(--bg-panel); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
+        <h2 class="card-title" style="margin:0; font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22" style="color:var(--accent);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            Telegram Chat ID Nasıl Öğrenilir?
+        </h2>
+        <button onclick="document.getElementById('telegramHelpModal').close()" style="background:none;border:none;cursor:pointer;font-size:1.5rem;line-height:1;color:var(--text-muted); transition:color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+    </div>
+    <div style="padding:24px; font-size:0.9rem; line-height:1.6; color:var(--text-secondary);">
+        <p style="margin-top:0; margin-bottom:12px;">1. Telegram uygulamasında <strong>@@userinfobot</strong> (veya benzeri ID bulan botları) arayın.</p>
+        <p style="margin-bottom:12px;">2. Bota <strong>/start</strong> mesajı gönderin.</p>
+        <p style="margin-bottom:12px;">3. Bot size <code style="background:var(--bg-body); padding:2px 6px; border-radius:4px; font-family:monospace; border:1px solid var(--border);">Id: 123456789</code> şeklinde bir numara dönecektir.</p>
+        <p style="margin-bottom:0;">4. Eğer bildirimi bir gruba almak istiyorsanız, Karavul botunuzu o gruba ekleyip ID bulan botları da o gruba davet ederek grubun eksi (-) ile başlayan ID'sini öğrenebilirsiniz.</p>
+    </div>
+</dialog>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Toggle sections based on checkboxes
+            const chkEmail = document.getElementById('chkEmail');
+            const chkSms = document.getElementById('chkSms');
+            const chkTelegram = document.getElementById('chkTelegram');
+            
+            const secEmail = document.getElementById('section-email');
+            const secSms = document.getElementById('section-sms');
+            const secTelegram = document.getElementById('section-telegram');
+
+            function updateVisibility() {
+                secEmail.style.display = chkEmail.checked ? 'block' : 'none';
+                secSms.style.display = chkSms.checked ? 'block' : 'none';
+                secTelegram.style.display = chkTelegram.checked ? 'block' : 'none';
+            }
+
+            chkEmail.addEventListener('change', updateVisibility);
+            chkSms.addEventListener('change', updateVisibility);
+            chkTelegram.addEventListener('change', updateVisibility);
+            updateVisibility();
+
+            // Dynamic add/remove for Telegrams
+            document.getElementById('addTelegramBtn').addEventListener('click', function () {
+                var container = document.getElementById('telegramContainer');
+                var row = document.createElement('div');
+                row.className = 'dynamic-input-row';
+                row.style.display = 'flex';
+                row.style.gap = '8px';
+                row.style.marginBottom = '8px';
+                row.innerHTML = `
+                    <input type="text" name="Telegrams" class="form-control" placeholder="-100000000000" />
+                    <button type="button" class="btn btn-danger btn-icon btn-sm remove-input-row">&times;</button>
+                `;
+                container.appendChild(row);
+            });
+            
+            document.querySelector('form').addEventListener('click', function(e) {
+                if(e.target.classList.contains('remove-input-row') || e.target.closest('.remove-input-row')) {
+                    var row = e.target.closest('.dynamic-input-row');
+                    if(row) {
+                        if(row.parentElement.children.length > 1) {
+                            row.remove();
+                        } else {
+                            row.querySelector('input').value = '';
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('addEmailBtn').addEventListener('click', function () {
+                var container = document.getElementById('emailContainer');
+                var row = document.createElement('div');
+                row.className = 'dynamic-input-row';
+                row.style.display = 'flex';
+                row.style.gap = '8px';
+                row.style.marginBottom = '8px';
+                row.innerHTML = `
+                    <input type="email" name="Emails" class="form-control" placeholder="ornek@sirket.com" />
+                    <button type="button" class="btn btn-danger btn-icon btn-sm remove-input-row">&times;</button>
+                `;
+                container.appendChild(row);
+            });
+            
+            document.getElementById('addPhoneBtn').addEventListener('click', function () {
+                var container = document.getElementById('phoneContainer');
+                var row = document.createElement('div');
+                row.className = 'dynamic-input-row';
+                row.style.display = 'flex';
+                row.style.gap = '8px';
+                row.style.marginBottom = '8px';
+                row.innerHTML = `
+                    <input type="tel" name="Phones" class="form-control" placeholder="+90 5XX XXX XX XX" />
+                    <button type="button" class="btn btn-danger btn-icon btn-sm remove-input-row">&times;</button>
+                `;
+                container.appendChild(row);
+            });
+        });
+    </script>
+}

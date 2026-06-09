@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Karavul.Core/Karavul.Core.csproj" />
+    <Project Path="src/Karavul.Data/Karavul.Data.csproj" />
+    <Project Path="src/Karavul.Host/Karavul.Host.csproj" />
+    <Project Path="src/Karavul.Services/Karavul.Services.csproj" />
+  </Folder>
+</Solution>

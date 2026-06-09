@@ -1,0 +1,241 @@
+@page
+@model Karavul.Host.Pages.Monitors.DetailModel
+@using Karavul.Core.Enums
+@{
+    ViewData["Title"] = Model.Monitor?.Name ?? "Monitör Detayı";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Model.Monitor?.Name</h1>
+        <p class="page-subtitle" style="font-family:monospace;">@Model.Monitor?.Url</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+        @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
+        {
+            <form method="post" asp-page-handler="RunCheck" asp-route-id="@Model.Monitor?.Id" style="margin:0;">
+                <button type="submit" class="btn btn-primary">Manuel Çalıştır</button>
+            </form>
+            <a href="/Monitors/Edit?id=@Model.Monitor?.Id" class="btn btn-secondary">Düzenle</a>
+        }
+        <a href="/Monitors" class="btn btn-secondary">← Geri</a>
+    </div>
+</div>
+
+<!-- Uptime Stats -->
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:20px;">
+    <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Detail.UptimePercent24h%</div>
+            <div class="stat-label">24 Saatlik Uptime</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Detail.UptimePercent7d%</div>
+            <div class="stat-label">7 Günlük Uptime</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Detail.UptimePercent30d%</div>
+            <div class="stat-label">30 Günlük Uptime</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Detail.AvgResponseTimeMs<span style="font-size:0.9rem;">ms</span></div>
+            <div class="stat-label">Ort. Yanıt (7g)</div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
+    <!-- Recent Checks -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Son Kontroller</h2>
+        </div>
+        @if (!Model.Detail.RecentChecks.Any())
+        {
+            <p style="color:var(--text-muted); text-align:center; padding:24px;">Henüz kontrol yapılmadı.</p>
+        }
+        else
+        {
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zaman</th>
+                            <th>Sonuç</th>
+                            <th>HTTP</th>
+                            <th>Yanıt</th>
+                            <th>Detay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.Detail.RecentChecks)
+                        {
+                            <tr>
+                                <td style="font-size:0.78rem;color:var(--text-muted);">@c.CheckedAt.ToLocalTime().ToString("dd/MM HH:mm:ss")</td>
+                                <td>
+                                    @if (c.IsSuccess)
+                                    {
+                                        <span class="badge badge-up">OK</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-down">FAIL</span>
+                                    }
+                                </td>
+                                <td style="font-family:monospace; color:@(c.StatusCode < 400 ? "var(--green)" : "var(--red)");">@c.StatusCode</td>
+                                <td class="response-time-cell"><span class="response-time">@c.ResponseTimeMs ms</span></td>
+                                <td style="font-size:0.75rem;color:var(--text-muted);">
+                                    @c.ErrorMessage
+                                    @if (!string.IsNullOrEmpty(c.HealthJson))
+                                    {
+                                        <button class="badge badge-info" style="cursor:pointer; border:none; margin-left:4px;" onclick="showHealthJson('@c.Id')">JSON Detay</button>
+                                        <div id="json-@c.Id" style="display:none;">@c.HealthJson</div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <partial name="_Pagination" model="Model.Pagination" />
+        }
+    </div>
+
+    <!-- Right panel -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Monitor Info -->
+        <div class="card">
+            <div class="card-header"><h2 class="card-title">Monitör Bilgisi</h2></div>
+            <table style="width:100%;">
+                <tbody>
+                    <tr><td style="color:var(--text-muted);padding:6px 0;font-size:0.82rem;">Tip</td><td class="badge badge-info" style="font-size:0.75rem;">@Model.Monitor?.MonitorType</td></tr>
+                    <tr><td style="color:var(--text-muted);padding:6px 0;font-size:0.82rem;">Metod</td><td style="font-family:monospace;">@Model.Monitor?.HttpMethod</td></tr>
+                    <tr><td style="color:var(--text-muted);padding:6px 0;font-size:0.82rem;">Beklenen Kod</td><td style="font-family:monospace;">@Model.Monitor?.ExpectedStatusCode</td></tr>
+                    <tr><td style="color:var(--text-muted);padding:6px 0;font-size:0.82rem;">Aralık</td><td>@(Model.Monitor?.CheckIntervalSeconds >= 60 ? $"{Model.Monitor?.CheckIntervalSeconds/60}dk" : $"{Model.Monitor?.CheckIntervalSeconds}sn")</td></tr>
+                    <tr><td style="color:var(--text-muted);padding:6px 0;font-size:0.82rem;">Timeout</td><td>@Model.Monitor?.TimeoutSeconds sn</td></tr>
+                    <tr><td style="color:var(--text-muted);padding:6px 0;font-size:0.82rem;">Maks. Yanıt</td><td>@Model.Monitor?.MaxResponseTimeMs ms</td></tr>
+                    <tr><td style="color:var(--text-muted);padding:6px 0;font-size:0.82rem;">İletişim Grubu</td><td>@(Model.Detail.ContactGroupName ?? "-")</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SSL Info -->
+        @if (Model.Monitor?.CheckSsl == true && Model.Detail?.SslInfo != null)
+        {
+            var ssl = Model.Detail.SslInfo;
+            var sslClass = ssl.DaysRemaining <= 7 ? "ssl-critical" : ssl.DaysRemaining <= 30 ? "ssl-warning" : "ssl-ok";
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">SSL Sertifikası</h2></div>
+                @if (!ssl.IsValid)
+                {
+                    <p class="ssl-critical">⚠ Geçersiz sertifika: @ssl.ErrorMessage</p>
+                }
+                else
+                {
+                    <table style="width:100%;">
+                        <tr><td style="color:var(--text-muted);font-size:0.82rem;">Common Name</td><td>@ssl.CommonName</td></tr>
+                        <tr><td style="color:var(--text-muted);font-size:0.82rem;">Bitiş Tarihi</td><td>@ssl.ExpiryDate?.ToString("dd/MM/yyyy")</td></tr>
+                        <tr><td style="color:var(--text-muted);font-size:0.82rem;">Kalan Gün</td>
+                            <td class="@sslClass" style="font-weight:700;">@ssl.DaysRemaining gün</td></tr>
+                    </table>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Incidents -->
+@if (Model.Detail?.RecentIncidents?.Any() == true)
+{
+    <div class="card" style="margin-top:20px;">
+        <div class="card-header"><h2 class="card-title">Olay Geçmişi</h2></div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Durum</th><th>Başlangıç</th><th>Bitiş</th><th>Süre</th><th>Sebep</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in Model.Detail.RecentIncidents)
+                    {
+                        <tr class="incident-row @i.Status.ToString().ToLower()">
+                            <td>
+                                @if (i.Status == IncidentStatus.Open)
+                                {
+                                    <span class="badge badge-open">AÇIK</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-resolved">ÇÖZÜLDÜ</span>
+                                }
+                            </td>
+                            <td style="font-size:0.8rem;">@i.StartedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td style="font-size:0.8rem;">@(i.ResolvedAt.HasValue ? i.ResolvedAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm") : "-")</td>
+                            <td style="font-size:0.8rem;">@(i.Duration.HasValue ? $"{(int)i.Duration.Value.TotalMinutes}dk" : "-")</td>
+                            <td style="font-size:0.78rem;color:var(--text-muted);">@i.Reason</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<!-- Modal for Health JSON -->
+<dialog id="healthModal" style="border:none; border-radius:12px; padding:0; box-shadow:0 20px 40px rgba(0,0,0,0.3); max-width:600px; width:100%; margin:auto; background:var(--bg-surface); color:var(--text-primary); overflow:hidden;">
+    <div style="background:var(--bg-panel); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
+        <h2 class="card-title" style="margin:0; font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" style="color:var(--accent);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Sağlık Detayları
+        </h2>
+        <button onclick="document.getElementById('healthModal').close()" style="background:none;border:none;cursor:pointer;font-size:1.5rem;line-height:1;color:var(--text-muted); transition:color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+    </div>
+    <div style="padding:24px;">
+        <div id="healthModalContent" style="font-size:0.85rem; max-height:400px; overflow-y:auto; background:var(--bg-body); border-radius:8px; border:1px solid var(--border); padding:16px;"></div>
+    </div>
+</dialog>
+
+<script>
+    function showHealthJson(id) {
+        var jsonStr = document.getElementById('json-' + id).innerText;
+        var contentDiv = document.getElementById('healthModalContent');
+        try {
+            var data = JSON.parse(jsonStr);
+            var html = '<table style="width:100%; border-collapse:collapse; text-align:left;">';
+            html += '<tr style="border-bottom:1px solid #e2e8f0;"><th>Bileşen</th><th>Durum</th><th>Süre</th></tr>';
+            
+            if (data.entries) {
+                for (var key in data.entries) {
+                    var entry = data.entries[key];
+                    var statusColor = entry.status === 'Healthy' ? 'var(--green)' : (entry.status === 'Degraded' ? 'var(--yellow)' : 'var(--red)');
+                    html += '<tr style="border-bottom:1px solid #f1f5f9;">';
+                    html += '<td style="padding:8px 0; font-weight:500;">' + key + '</td>';
+                    html += '<td style="padding:8px 0; color:' + statusColor + '; font-weight:bold;">' + entry.status + '</td>';
+                    html += '<td style="padding:8px 0; color:var(--text-muted);">' + (entry.duration || '-') + '</td>';
+                    html += '</tr>';
+                }
+            } else {
+                html += '<tr><td colspan="3" style="padding:8px 0;"><pre style="white-space:pre-wrap;">' + JSON.stringify(data, null, 2) + '</pre></td></tr>';
+            }
+            html += '</table>';
+            
+            if(data.totalDuration) {
+                html += '<div style="margin-top:12px; font-weight:500; color:var(--text-muted);">Toplam Süre: ' + data.totalDuration + '</div>';
+            }
+            
+            contentDiv.innerHTML = html;
+        } catch(e) {
+            contentDiv.innerHTML = '<pre style="white-space:pre-wrap; background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace;">' + jsonStr + '</pre>';
+        }
+        document.getElementById('healthModal').showModal();
+    }
+</script>

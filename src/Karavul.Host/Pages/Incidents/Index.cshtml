@@ -1,0 +1,124 @@
+@page
+@model Karavul.Host.Pages.Incidents.IndexModel
+@using Karavul.Core.Enums
+@inject Karavul.Host.Localization.ILocalizationService Loc
+@{
+    ViewData["Title"] = Loc["olaylar"];
+}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+    <div>
+        <h1 class="page-title">@Loc["olay-gecmisi"]</h1>
+        <p class="page-subtitle">@Loc["tum-kesinti-ve-uyarilar"]</p>
+    </div>
+    
+    <form method="get" style="display:flex; gap:10px; align-items:center;">
+        <select name="FilterStatus" asp-for="FilterStatus" class="form-input" style="padding:6px 12px; border:1px solid var(--border-color); border-radius:4px;">
+            <option value="">@Loc["hepsi"]</option>
+            <option value="1">@Loc["cozuldu"]</option>
+            <option value="0">@Loc["acik"]</option>
+        </select>
+        <input type="text" name="FilterMonitor" asp-for="FilterMonitor" class="form-input" placeholder="@Loc["monitor-ara"]" style="padding:6px 12px; border:1px solid var(--border-color); border-radius:4px; min-width:200px;" />
+        <input type="text" name="FilterCode" asp-for="FilterCode" class="form-input" placeholder="@Loc["koddan-ara"]" style="padding:6px 12px; border:1px solid var(--border-color); border-radius:4px; min-width:150px;" />
+        <button type="submit" class="btn" style="background-color:var(--accent); color:white; border:none; padding:6px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">@Loc["ara"]</button>
+    </form>
+</div>
+
+<div class="card">
+    @if (!Model.Incidents.Any())
+    {
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <p>@Loc["olay-kaydi-bulunmuyor"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>@Loc["durum"]</th>
+                        <th>@Loc["monitor"]</th>
+                        <th>@Loc["kod"]</th>
+                        <th>@Loc["baslangic"]</th>
+                        <th>@Loc["bitis"]</th>
+                        <th>@Loc["sure"]</th>
+                        <th>@Loc["sebep"]</th>
+                        <th>@Loc["bildirim-sayisi"]</th>
+                        <th>@Loc["son-hata"]</th>
+                        <th>@Loc["islem"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in Model.Incidents)
+                    {
+                        var duration = i.ResolvedAt.HasValue
+                            ? (i.ResolvedAt.Value - i.StartedAt)
+                            : (DateTime.UtcNow - i.StartedAt);
+
+                        <tr class="incident-row @i.Status.ToString().ToLower()">
+                            <td>
+                                @if (i.Status == IncidentStatus.Open)
+                                {
+                                    <span class="badge badge-open">🔴 @Loc["acik"]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-resolved">✅ @Loc["cozuldu"]</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="/Monitors/Detail?id=@i.MonitorId" style="color:var(--accent); text-decoration:none; font-weight:600;">
+                                    @i.MonitorName
+                                </a>
+                            </td>
+                            <td style="font-size:0.85rem; font-family:monospace; color:var(--text-secondary);">#@i.Code</td>
+                            <td style="font-size:0.8rem;">@i.StartedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td style="font-size:0.8rem; color:var(--text-muted);">
+                                @if (i.ResolvedAt.HasValue)
+                                {
+                                    <span>@i.ResolvedAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</span>
+                                    if (i.IsManuallyResolved)
+                                    {
+                                        <span title="Kapatan: @(i.ResolvedBy ?? "Bilinmiyor")" style="margin-left:4px; font-size:1rem; cursor:help;">✋</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td style="font-size:0.8rem;">
+                                @if (duration.TotalHours >= 1)
+                                {
+                                    @($"{(int)duration.TotalHours}{Loc["sa"]} {duration.Minutes}{Loc["dk"]}")
+                                }
+                                else
+                                {
+                                    @($"{(int)duration.TotalMinutes}{Loc["dk"]} {duration.Seconds}{Loc["saniye-kisa"]}")
+                                }
+                            </td>
+                            <td><span class="badge badge-info" style="font-size:0.72rem;">@i.Reason</span></td>
+                            <td style="text-align:center; color:var(--text-muted);">@i.NotificationCount</td>
+                            <td style="font-size:0.75rem; color:var(--text-muted); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                @i.LastErrorMessage
+                            </td>
+                            <td>
+                                @if (i.Status == IncidentStatus.Open && HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor | Karavul.Core.Enums.UserRole.Operator))
+                                {
+                                    <form method="post" asp-page-handler="Resolve" asp-route-id="@i.Id" style="display:inline;">
+                                        <button type="submit" class="btn btn-success btn-sm" title="@Loc["elle-kapat"]">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="_Pagination" model="Model.Pagination" />
+    }
+</div>

@@ -1,0 +1,129 @@
+@page
+@model Karavul.Host.Pages.Monitors.EditModel
+@{
+    ViewData["Title"] = "Monitör Düzenle";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Monitör Düzenle</h1>
+        <p class="page-subtitle">@Model.Monitor.Name</p>
+    </div>
+    <a href="/Monitors" class="btn btn-secondary">← Geri</a>
+</div>
+
+<div class="card" style="max-width:720px;">
+    <form method="post">
+        <input asp-for="Monitor.Id" type="hidden" />
+        <input asp-for="Monitor.CurrentStatus" type="hidden" />
+        <input asp-for="Monitor.CreatedAt" type="hidden" />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Monitör Adı *</label>
+                <input asp-for="Monitor.Name" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label">URL *</label>
+                <input asp-for="Monitor.Url" class="form-control" type="url" required />
+            </div>
+        </div>
+
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label class="form-label">HTTP Metodu</label>
+                <select asp-for="Monitor.HttpMethod" class="form-control">
+                    <option value="GET">GET</option>
+                    <option value="HEAD">HEAD</option>
+                    <option value="POST">POST</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Beklenen HTTP Kodu</label>
+                <input asp-for="Monitor.ExpectedStatusCode" class="form-control" type="number" min="100" max="599" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">İletişim Grubu</label>
+                <select asp-for="Monitor.ContactGroupId" asp-items="Model.ContactGroups" class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="form-grid-3">
+            <div class="form-group">
+                <label class="form-label">Kontrol Aralığı (sn)</label>
+                <input asp-for="Monitor.CheckIntervalSeconds" class="form-control" type="number" min="10" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Timeout (sn)</label>
+                <input asp-for="Monitor.TimeoutSeconds" class="form-control" type="number" min="1" max="120" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Maks. Yanıt Süresi (ms)</label>
+                <input asp-for="Monitor.MaxResponseTimeMs" class="form-control" type="number" min="0" />
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Açıklama</label>
+                <input asp-for="Monitor.Description" class="form-control" placeholder="İsteğe bağlı not" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">SSL Uyarı Eşiği (gün)</label>
+                <input asp-for="Monitor.SslWarningDays" class="form-control" type="number" min="1" />
+            </div>
+        </div>
+
+        <div style="display:flex; gap:24px; margin-bottom:8px;">
+            <div class="form-check" style="gap:10px;">
+                <label class="toggle-switch">
+                    <input asp-for="Monitor.IsActive" type="checkbox" id="isActive" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="form-label" for="isActive" style="margin:0;cursor:pointer;">Aktif</label>
+            </div>
+            <div class="form-check" style="gap:10px;">
+                <label class="toggle-switch">
+                    <input asp-for="Monitor.CheckSsl" type="checkbox" id="checkSsl" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="form-label" for="checkSsl" style="margin:0;cursor:pointer;">SSL Kontrolü Yap</label>
+            </div>
+            <div class="form-check" style="gap:10px;">
+                <label class="toggle-switch">
+                    <input asp-for="Monitor.IsHealthJson" type="checkbox" id="isHealthJson" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <label class="form-label" for="isHealthJson" style="margin:0;cursor:pointer;">Sağlık Detaylarını (JSON) Oku</label>
+            </div>
+        </div>
+
+        <div class="form-actions" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a href="/Monitors" class="btn btn-secondary">İptal</a>
+            </div>
+            @if(Model.Monitor.UpdatedAt != default)
+            {
+                <div style="font-size:0.75rem; color:var(--text-muted);">
+                    Son güncelleme: @(Model.Monitor.UpdatedBy ?? "Bilinmiyor") (@Model.Monitor.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm"))
+                </div>
+            }
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var urlInput = document.getElementById("Monitor_Url");
+        var isHealthJsonCb = document.getElementById("isHealthJson");
+
+        if (urlInput && isHealthJsonCb) {
+            urlInput.addEventListener("input", function () {
+                if (urlInput.value.toLowerCase().endsWith("/health")) {
+                    isHealthJsonCb.checked = true;
+                }
+            });
+        }
+    });
+</script>

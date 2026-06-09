@@ -1,0 +1,60 @@
+@using Karavul.Core.DTOs
+@model PaginationModel
+@{
+    var showPages = 5;
+    var startPage = Math.Max(1, Model.CurrentPage - (showPages / 2));
+    var endPage = Math.Min(Model.TotalPages, startPage + showPages - 1);
+
+    if (endPage - startPage + 1 < showPages)
+    {
+        startPage = Math.Max(1, endPage - showPages + 1);
+    }
+}
+@if (Model.TotalPages > 1)
+{
+    <div class="advanced-pagination">
+        @if (Model.CurrentPage > 1)
+        {
+            <a href="@Model.GetUrl(1)" class="page-link" title="İlk Sayfa">&laquo;</a>
+            <a href="@Model.GetUrl(Model.CurrentPage - 1)" class="page-link" title="Önceki Sayfa">&lsaquo;</a>
+        }
+        else
+        {
+            <span class="page-link disabled">&laquo;</span>
+            <span class="page-link disabled">&lsaquo;</span>
+        }
+
+        @if (startPage > 1)
+        {
+            <span class="page-link disabled">...</span>
+        }
+
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            if (i == Model.CurrentPage)
+            {
+                <span class="page-link active">@i</span>
+            }
+            else
+            {
+                <a href="@Model.GetUrl(i)" class="page-link">@i</a>
+            }
+        }
+
+        @if (endPage < Model.TotalPages)
+        {
+            <span class="page-link disabled">...</span>
+        }
+
+        @if (Model.CurrentPage < Model.TotalPages)
+        {
+            <a href="@Model.GetUrl(Model.CurrentPage + 1)" class="page-link" title="Sonraki Sayfa">&rsaquo;</a>
+            <a href="@Model.GetUrl(Model.TotalPages)" class="page-link" title="Son Sayfa">&raquo;</a>
+        }
+        else
+        {
+            <span class="page-link disabled">&rsaquo;</span>
+            <span class="page-link disabled">&raquo;</span>
+        }
+    </div>
+}

@@ -1,0 +1,84 @@
+@page
+@model Karavul.Host.Pages.Settings.IndexModel
+@inject Karavul.Host.Localization.ILocalizationService Loc
+@{
+    ViewData["Title"] = Loc["ayarlar"];
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Loc["uygulama-ayarlari"]</h1>
+        <p class="page-subtitle">@Loc["sistem-yapilandirmasi"]</p>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+    <div class="card">
+        <div class="card-header"><h2 class="card-title">@Loc["calisma-ayarlari"]</h2></div>
+
+        <table style="width:100%;">
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["web-port"]</td>
+                <td style="border-bottom:1px solid var(--border);"><span style="font-family:monospace; color:var(--accent);">@Model.WebPort</span></td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["uygulama-surumu"]</td>
+                <td style="border-bottom:1px solid var(--border);"><span style="font-weight:bold; color:var(--accent);">v@(Model.AppVersion)</span></td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["veritabani"]</td>
+                <td style="border-bottom:1px solid var(--border); font-size:0.78rem; font-family:monospace; word-break:break-all;">@Model.DatabasePath</td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["sistem-dili"]</td>
+                <td style="border-bottom:1px solid var(--border);"><span style="font-weight:bold; color:var(--accent);">@Model.Language.ToUpper()</span></td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["log-dizini"]</td>
+                <td style="border-bottom:1px solid var(--border); font-size:0.78rem; font-family:monospace; word-break:break-all;">@Model.LogPath</td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["telegram-bot-token"]</td>
+                <td style="border-bottom:1px solid var(--border); font-size:0.78rem; font-family:monospace; word-break:break-all;">
+                    @(Model.TelegramBotToken.Length > 20 ? Model.TelegramBotToken.Substring(0, 10) + "..." + Model.TelegramBotToken.Substring(Model.TelegramBotToken.Length - 5) : Model.TelegramBotToken)
+                </td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem;">@Loc["veri-saklama"]</td>
+                <td>@Model.RetentionDays @Loc["gun"]</td>
+            </tr>
+        </table>
+
+        <div class="alert alert-success" style="margin-top:16px; font-size:0.8rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            @Html.Raw(Loc["ayarlari-degistirmek-icin"])
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2 class="card-title">@Loc["servis-bilgisi"]</h2></div>
+        <table style="width:100%;">
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["servis-adi"]</td>
+                <td style="border-bottom:1px solid var(--border);">Karavul</td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["gorunen-ad"]</td>
+                <td style="border-bottom:1px solid var(--border);">@Loc["yerel-durum-monitoru"]</td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["calisma-modu"]</td>
+                <td style="border-bottom:1px solid var(--border);">Windows Service</td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--border);">@Loc["baslangic-turu"]</td>
+                <td style="border-bottom:1px solid var(--border);">@Loc["otomatik"]</td>
+            </tr>
+            <tr>
+                <td style="color:var(--text-muted); padding:10px 0; font-size:0.82rem;">@Loc["web-arayuzu"]</td>
+                <td><a href="http://127.0.0.1:@Model.WebPort" style="color:var(--accent);">http://127.0.0.1:@Model.WebPort</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+

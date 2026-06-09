@@ -1,0 +1,125 @@
+@page
+@model Karavul.Host.Pages.Monitors.IndexModel
+@using Karavul.Core.Enums
+@inject Karavul.Host.Localization.ILocalizationService Loc
+@{
+    ViewData["Title"] = Loc["monitorler"];
+}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+    <div>
+        <h1 class="page-title">@Loc["monitorler"]</h1>
+        <p class="page-subtitle">@Model.Monitors.Count @Loc["monitor-tanimli"]</p>
+    </div>
+    
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <form method="get" style="display:flex; gap:10px; align-items:center;">
+            <select name="FilterStatus" asp-for="FilterStatus" class="form-input" style="padding:6px 12px; border:1px solid var(--border-color); border-radius:4px;">
+                <option value="">@Loc["hepsi"]</option>
+                <option value="1">@Loc["calisiyor"]</option>
+                <option value="2">@Loc["coktu"]</option>
+                <option value="3">@Loc["uyari"]</option>
+                <option value="4">@Loc["duraklatildi"]</option>
+            </select>
+            <input type="text" name="FilterName" asp-for="FilterName" class="form-input" placeholder="@Loc["ad"]" style="padding:6px 12px; border:1px solid var(--border-color); border-radius:4px; min-width:150px;" />
+            <input type="text" name="FilterUrl" asp-for="FilterUrl" class="form-input" placeholder="@Loc["url"]" style="padding:6px 12px; border:1px solid var(--border-color); border-radius:4px; min-width:150px;" />
+            <button type="submit" class="btn" style="background-color:var(--accent); color:white; border:none; padding:6px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">@Loc["ara"]</button>
+        </form>
+
+        @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
+        {
+            <a href="/Monitors/Create" class="btn btn-primary" style="margin-left:10px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                @Loc["yeni-monitor"]
+            </a>
+        }
+    </div>
+</div>
+
+<div class="card">
+    @if (!Model.Monitors.Any())
+    {
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+            <p>@Loc["henuz-monitor-eklenmemis"]<br /><a href="/Monitors/Create" style="color:var(--accent);">@Loc["ilk-monitoru-ekle"]</a></p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>@Loc["durum"]</th>
+                        <th>@Loc["ad"]</th>
+                        <th>@Loc["url"]</th>
+                        <th>@Loc["tip"]</th>
+                        <th>@Loc["aralik"]</th>
+                        <th>@Loc["contact-grup"]</th>
+                        <th>@Loc["ssl"]</th>
+                        <th>@Loc["islemler"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model.Monitors)
+                    {
+                        <tr>
+                            <td>
+                                @if (!m.IsActive)
+                                {
+                                    <span class="badge badge-paused">@Loc["duraklatildi"]</span>
+                                }
+                                else
+                                {
+                                    switch (m.CurrentStatus)
+                                    {
+                                        case MonitorStatus.Up: <span class="badge badge-up">@Loc["calisiyor"]</span> break;
+                                        case MonitorStatus.Down: <span class="badge badge-down">@Loc["coktu"]</span> break;
+                                        case MonitorStatus.Warning: <span class="badge badge-warning">@Loc["uyari"]</span> break;
+                                        default: <span class="badge badge-unknown">-</span> break;
+                                    }
+                                }
+                            </td>
+                            <td class="monitor-name">@m.Name</td>
+                            <td class="url-text">@m.Url</td>
+                            <td><span class="badge badge-info">@m.MonitorType</span></td>
+                            <td style="color:var(--text-muted);">@(m.CheckIntervalSeconds >= 60 ? $"{m.CheckIntervalSeconds/60}{Loc["dk"]}" : $"{m.CheckIntervalSeconds}{Loc["saniye-kisa"]}")</td>
+                            <td style="color:var(--text-muted);">@(Model.GroupNames.TryGetValue(m.ContactGroupId ?? "", out var gn) ? gn : "-")</td>
+                            <td>@(m.CheckSsl ? "✓" : "-")</td>
+                            <td>
+                                <div class="actions">
+                                    <a href="/Monitors/Detail?id=@m.Id" class="btn btn-secondary btn-sm btn-icon" title="@Loc["detay"]">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </a>
+                                    @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
+                                    {
+                                        <a href="/Monitors/Edit?id=@m.Id" class="btn btn-secondary btn-sm btn-icon" title="@Loc["duzenle"]">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </a>
+                                        <form method="post" style="display:inline;">
+                                            <input type="hidden" name="id" value="@m.Id" />
+                                            <button type="submit" asp-page-handler="Toggle"
+                                                    class="btn @(m.IsActive ? "btn-warning" : "btn-success") btn-sm btn-icon"
+                                                    title="@(m.IsActive ? Loc["pasif-yap"] : Loc["aktif-yap"])">
+                                                @(m.IsActive ? "⏸" : "▶")
+                                            </button>
+                                        </form>
+                                        <form method="post" style="display:inline;">
+                                            <input type="hidden" name="id" value="@m.Id" />
+                                            <button type="submit" asp-page-handler="Delete"
+                                                    class="btn btn-danger btn-sm btn-icon"
+                                                    data-confirm="@string.Format(Loc["monitoru-silmek-istediginize-emin-misiniz"], m.Name)"
+                                                    title="@Loc["sil"]">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

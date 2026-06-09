@@ -1,0 +1,103 @@
+@page
+@model Karavul.Host.Pages.ContactGroups.IndexModel
+@inject Karavul.Host.Localization.ILocalizationService Loc
+@{
+    ViewData["Title"] = Loc["iletisim-gruplari"];
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Loc["iletisim-gruplari"]</h1>
+        <p class="page-subtitle">@Loc["alarm-bildirimlerinin-gonderilecegi-gruplar"]</p>
+    </div>
+    <a href="/ContactGroups/Create" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        @Loc["yeni-grup"]
+    </a>
+</div>
+
+<div class="card">
+    @if (!Model.Groups.Any())
+    {
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <p>@Loc["henuz-iletisim-grubu-eklenmemis"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>@Loc["grup-adi"]</th>
+                        <th>@Loc["e-postalar"]</th>
+                        <th>@Loc["telefonlar"]</th>
+                        <th>@Loc["telegram"]</th>
+                        <th>@Loc["tekrar-alarm"]</th>
+                        <th>@Loc["durum"]</th>
+                        <th>@Loc["islemler"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in Model.Groups)
+                    {
+                        <tr>
+                            <td class="monitor-name">@g.Name</td>
+                            <td style="font-size:0.8rem; color:var(--text-secondary);">
+                                @if (g.Emails.Any())
+                                {
+                                    @string.Join(", ", g.Emails.Select(e => e.Email))
+                                }
+                                else { <span style="color:var(--text-muted);">-</span> }
+                            </td>
+                            <td style="font-size:0.8rem; color:var(--text-secondary);">
+                                @if (g.Phones.Any())
+                                {
+                                    @string.Join(", ", g.Phones.Select(p => p.PhoneNumber))
+                                }
+                                else { <span style="color:var(--text-muted);">-</span> }
+                            </td>
+                            <td style="font-size:0.8rem; color:var(--text-secondary);">
+                                @if (g.Telegrams.Any())
+                                {
+                                    @string.Join(", ", g.Telegrams.Select(t => t.ChatId))
+                                }
+                                else { <span style="color:var(--text-muted);">-</span> }
+                            </td>
+                            <td>
+                                @(g.RepeatAlertMinutes == 0 ? Loc["tek-seferlik"] : string.Format(Loc["her-x-dakika"], g.RepeatAlertMinutes))
+                            </td>
+                            <td>
+                                @if (g.IsActive)
+                                {
+                                    <span class="badge badge-up">@Loc["aktif"]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-paused">@Loc["pasif"]</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a href="/ContactGroups/Edit?id=@g.Id" class="btn btn-secondary btn-sm btn-icon" title="@Loc["duzenle"]">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    </a>
+                                    <form method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@g.Id" />
+                                        <button type="submit" asp-page-handler="Delete"
+                                                class="btn btn-danger btn-sm btn-icon"
+                                                data-confirm="@string.Format(Loc["grubu-silmek-istediginize-emin-misiniz"], g.Name)"
+                                                title="@Loc["sil"]">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

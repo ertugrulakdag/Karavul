@@ -1,0 +1,220 @@
+@page
+@model Karavul.Host.Pages.IndexModel
+@using Karavul.Core.Enums
+@inject Karavul.Host.Localization.ILocalizationService Loc
+@{
+    ViewData["Title"] = Loc["genel-bakis"];
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Loc["genel-bakis"]</h1>
+        <p class="page-subtitle">@Loc["son-guncelleme"]: @DateTime.Now.ToString("HH:mm:ss") · @Loc["otomatik-yenileme"]: <span id="refreshTimer">30</span>@Loc["saniye-kisa"]</p>
+    </div>
+    @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
+    {
+        <a href="/Monitors/Create" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            @Loc["monitor-ekle"]
+        </a>
+    }
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Dashboard.TotalMonitors</div>
+            <div class="stat-label">@Loc["toplam-monitor"]</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Dashboard.UpMonitors</div>
+            <div class="stat-label">@Loc["calisiyor-up"]</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Dashboard.DownMonitors</div>
+            <div class="stat-label">@Loc["cokmus-down"]</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon yellow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Dashboard.ActiveIncidents</div>
+            <div class="stat-label">@Loc["aktif-olaylar"]</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Dashboard.Last24hUptimePercent<span style="font-size:1rem;">%</span></div>
+            <div class="stat-label">@Loc["24s-uptime-orani"]</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">@Model.Dashboard.AvgResponseTimeMs<span style="font-size:0.9rem; color:var(--text-muted);">ms</span></div>
+            <div class="stat-label">@Loc["ort-yanit-suresi"]</div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Section -->
+<div class="card" style="margin-top: 24px; margin-bottom: 24px;">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 class="card-title">@Loc["gecmis-grafigi"]</h2>
+        <div class="btn-group chart-period-buttons" style="display:flex; gap:4px;">
+            <button type="button" class="btn btn-secondary btn-sm active" data-period="day">@Loc["gunluk"]</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-period="week">@Loc["haftalik"]</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-period="month">@Loc["aylik"]</button>
+        </div>
+    </div>
+    <div style="padding: 20px; height: 300px; position: relative;">
+        <canvas id="realtimeChart"></canvas>
+    </div>
+</div>
+
+<!-- Monitor List -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">@Loc["monitor-listesi"]</h2>
+        <span style="font-size:0.78rem; color:var(--text-muted);">@Model.Dashboard.TotalMonitors @Loc["monitor-kucuk"]</span>
+    </div>
+
+    @if (!Model.Dashboard.Monitors.Any())
+    {
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>@Loc["henuz-monitor-eklenmemis"]
+                @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
+                {
+                    <br /><a href="/Monitors/Create" style="color:var(--accent);">@Loc["ilk-monitoru-ekle"]</a>
+                }
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>@Loc["durum"]</th>
+                        <th>@Loc["ad-url"]</th>
+                        <th>@Loc["son-kontrol"]</th>
+                        <th>@Loc["http"]</th>
+                        <th>@Loc["yanit-suresi"]</th>
+                        <th>@Loc["24s-uptime"]</th>
+                        <th>@Loc["contact-grup"]</th>
+                        <th>@Loc["islemler"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model.Dashboard.Monitors)
+                    {
+                        <tr>
+                            <td>
+                                @if (!m.IsActive)
+                                {
+                                    <span class="badge badge-paused">⏸ PAUSED</span>
+                                }
+                                else
+                                {
+                                    switch (m.CurrentStatus)
+                                    {
+                                        case MonitorStatus.Up:
+                                            <span class="badge badge-up">✓ UP</span>
+                                            break;
+                                        case MonitorStatus.Down:
+                                            <span class="badge badge-down">✗ DOWN</span>
+                                            break;
+                                        case MonitorStatus.Warning:
+                                            <span class="badge badge-warning">⚠ WARN</span>
+                                            break;
+                                        default:
+                                            <span class="badge badge-unknown">? -</span>
+                                            break;
+                                    }
+                                }
+                            </td>
+                            <td>
+                                <div class="monitor-name">@m.Name</div>
+                                <div class="url-text">@m.Url</div>
+                                @if (!string.IsNullOrEmpty(m.LastErrorMessage) && m.CurrentStatus != MonitorStatus.Up)
+                                {
+                                    <div style="font-size:0.72rem; color:var(--red); margin-top:2px;">@m.LastErrorMessage</div>
+                                }
+                            </td>
+                            <td style="color:var(--text-muted); font-size:0.8rem;">
+                                @(m.LastCheckedAt.HasValue ? m.LastCheckedAt.Value.ToLocalTime().ToString("HH:mm:ss") : "-")
+                            </td>
+                            <td>
+                                @if (m.LastStatusCode.HasValue)
+                                {
+                                    <span style="font-family:monospace; color:@(m.LastStatusCode < 400 ? "var(--green)" : "var(--red)");">
+                                        @m.LastStatusCode
+                                    </span>
+                                }
+                                else { <span style="color:var(--text-muted);">-</span> }
+                            </td>
+                            <td class="response-time-cell">
+                                @if (m.LastResponseTimeMs.HasValue)
+                                {
+                                    <span class="response-time">@m.LastResponseTimeMs ms</span>
+                                }
+                                else { <span style="color:var(--text-muted);">-</span> }
+                            </td>
+                            <td>
+                                <span style="color:@(m.UptimePercent24h >= 99 ? "var(--green)" : m.UptimePercent24h >= 90 ? "var(--yellow)" : "var(--red)"); font-weight:600;">
+                                    @m.UptimePercent24h%
+                                </span>
+                            </td>
+                            <td style="color:var(--text-muted); font-size:0.8rem;">
+                                @(m.ContactGroupName ?? "-")
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a href="/Monitors/Detail?id=@m.Id" class="btn btn-secondary btn-sm btn-icon" title="@Loc["detay"]">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </a>
+                                    @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
+                                    {
+                                        <a href="/Monitors/Edit?id=@m.Id" class="btn btn-secondary btn-sm btn-icon" title="@Loc["duzenle"]">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
