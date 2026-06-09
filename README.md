@@ -1,4 +1,5 @@
 # Karavul
+<img width="1914" height="957" alt="image" src="https://github.com/user-attachments/assets/93565c7e-e239-419e-a4e8-ff84fdd2a602" />
 
 **TR:** Karavul, web sitelerini, API endpointlerini ve servisleri izlemek (uptime & performance monitoring) için tasarlanmış, local olarak çalışan bir Windows Service uygulamasıdır.  
 **EN:** Karavul is a locally running Windows Service application designed for uptime and performance monitoring of websites, API endpoints, and services.
