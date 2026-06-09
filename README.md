@@ -5,7 +5,8 @@
 **EN:** Karavul is a locally running Windows Service application designed for uptime and performance monitoring of websites, API endpoints, and services.
 
 ### 📥 En Son Sürümü İndirin / Download the Latest Release
-- **[Download KaravulSetup_v1.0.1.exe (Windows Installer)](./Output/KaravulSetup_v1.0.1.exe)**
+- **[Download KaravulSetup_v1.0.1.exe (Windows Installer)](https://github.com/ertugrulakdag/Karavul/releases/download/v1.0.1/KaravulSetup_v1.0.1.exe)**
+- **[Sürüm Notları / Release Notes](https://github.com/ertugrulakdag/Karavul/releases/tag/v1.0.1)**
 
 ---
 
