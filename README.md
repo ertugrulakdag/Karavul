@@ -5,13 +5,13 @@
 **EN:** Karavul is a locally running Windows Service application designed for uptime and performance monitoring of websites, API endpoints, and services.
 
 ### 📥 En Son Sürümü İndirin / Download the Latest Release
-- **[Sürüm Notları / Release Notes](https://github.com/ertugrulakdag/Karavul/releases/tag/v1.0.1)**
+- **[Sürüm Notları / Release Notes](https://github.com/ertugrulakdag/Karavul/releases/tag/v1.0.2)**
 
 📦 Installation / Kurulum
 
-- **TR:** Linkteki `KaravulSetup_v1.0.1.exe` dosyasını indirin ve çalıştırın. Kurulum tamamlandıktan sonra yönetim paneline `http://127.0.0.1:9060` adresinden erişebilirsiniz.
+- **TR:** Linkteki `KaravulSetup_v1.0.2.exe` dosyasını indirin ve çalıştırın. Kurulum tamamlandıktan sonra yönetim paneline `http://127.0.0.1:9060` adresinden erişebilirsiniz.
 *(Varsayılan Giriş Bilgileri -> Kullanıcı Adı: Admin | Şifre: admin)*
-- **EN:** Download and run the `KaravulSetup_v1.0.1.exe` file below. Once installed, you can access the management panel at `http://127.0.0.1:9060`.
+- **EN:** Download and run the `KaravulSetup_v1.0.2.exe` file below. Once installed, you can access the management panel at `http://127.0.0.1:9060`.
 *(Default Login Credentials -> Username: Admin | Password: admin)*
 ---
 
@@ -75,8 +75,8 @@ dotnet run --project src\Karavul.Host\Karavul.Host.csproj
 
 ### Yöntem 1: Hazır Kurulum Dosyası / Method 1: Ready Installer
 
-**TR:** Sayfanın en üstündeki bağlantıya ([Download KaravulSetup_v1.0.1.exe](#-en-son-sürümü-indirin--download-the-latest-release)) tıklayarak indireceğiniz dosyayı çalıştırın ve ekrandaki adımları izleyin.
-**EN:** Click the link at the top of the page ([Download KaravulSetup_v1.0.1.exe](#-en-son-sürümü-indirin--download-the-latest-release)), run the downloaded file, and follow the on-screen steps.
+**TR:** Sayfanın en üstündeki bağlantıya ([Download KaravulSetup_v1.0.2.exe](#-en-son-sürümü-indirin--download-the-latest-release)) tıklayarak indireceğiniz dosyayı çalıştırın ve ekrandaki adımları izleyin.
+**EN:** Click the link at the top of the page ([Download KaravulSetup_v1.0.2.exe](#-en-son-sürümü-indirin--download-the-latest-release)), run the downloaded file, and follow the on-screen steps.
 
 ### Yöntem 2: Kaynak Koddan Kurulum Dosyası Oluşturmak / Method 2: Generating Installer from Source Code (Inno Setup)
 

@@ -1,7 +1,7 @@
 [Setup]
 AppId={{KARAVUL-MONITOR-001}}
 AppName=Karavul
-AppVersion=1.0.1
+AppVersion=1.0.2
 AppPublisher=Karavul
 AppPublisherURL=https://github.com/ertugrulakdag/karavul
 AppSupportURL=https://github.com/ertugrulakdag/karavul
@@ -9,11 +9,11 @@ AppUpdatesURL=https://github.com/ertugrulakdag/karavul
 VersionInfoCompany=Karavul
 VersionInfoDescription=Karavul Yerel Monitor Servisi
 VersionInfoProductName=Karavul
-VersionInfoProductVersion=1.0.1
+VersionInfoProductVersion=1.0.2
 VersionInfoCopyright=Copyright (C) 2026 Karavul
 DefaultDirName={autopf64}\Karavul
 DefaultGroupName=Karavul
-OutputBaseFilename=KaravulSetup_v1.0.1
+OutputBaseFilename=KaravulSetup_v1.0.2
 Compression=lzma2/ultra64
 SolidCompression=yes
 ArchitecturesAllowed=x64
@@ -46,8 +46,7 @@ Name: "{commonprograms}\Karavul"; Filename: "http://127.0.0.1:9060"; IconFilenam
 [Run]
 ; Servisi oluştur ve başlat
 Filename: "{sys}\sc.exe"; Parameters: "create KaravulService binPath= ""{app}\Karavul.exe"" start= auto DisplayName= ""Karavul Monitoring Service"""; Flags: runhidden
-Filename: "{sys}\sc.exe"; Parameters: "description KaravulService ""Karavul Yerel Monitor Servisi v1.0.1"""; Flags: runhidden
-Filename: "{sys}\sc.exe"; Parameters: "start KaravulService"; Flags: runhidden
+Filename: "{sys}\sc.exe"; Parameters: "description KaravulService ""Karavul Yerel Monitor Servisi v1.0.2"""; Flags: runhidden
 
 [UninstallRun]
 ; Uninstall işlemi sırasında servisi durdur ve sil
@@ -144,5 +143,8 @@ begin
         SaveStringsToFile(AppSettingsPath, FileLines, False);
       end;
     end;
+
+    // JSON dosyası güncellendikten sonra servisi başlatıyoruz
+    Exec(ExpandConstant('{sys}\sc.exe'), 'start KaravulService', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 end;
