@@ -55,9 +55,24 @@ Filename: "{sys}\sc.exe"; Parameters: "stop KaravulService"; Flags: runhidden; R
 Filename: "{sys}\sc.exe"; Parameters: "delete KaravulService"; Flags: runhidden; RunOnceId: "DeleteService"
 
 [Code]
+var
+  TelegramPage: TInputQueryWizardPage;
+
+procedure InitializeWizard;
+begin
+  TelegramPage := CreateInputQueryPage(wpSelectDir,
+    'Telegram Bildirimleri', 'Telegram üzerinden bildirim almak istiyor musunuz?',
+    'Eğer Telegram üzerinden sistem bildirimleri almak istiyorsanız, lütfen Bot Token bilginizi aşağıya girin.'#13#10'İstemiyorsanız alanı boş bırakıp devam edebilirsiniz.');
+  TelegramPage.Add('Bot Token:', False);
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ResultCode: Integer;
+  AppSettingsPath: string;
+  FileLines: TArrayOfString;
+  i: Integer;
+  BotToken: string;
 begin
   // Kurulum başlamadan hemen önce mevcut servis varsa durdurup siliyoruz ki dosyalar kilitli kalmasın
   if CurStep = ssInstall then
@@ -66,5 +81,28 @@ begin
     Sleep(2000); // Kapanması için kısa bir süre bekle
     Exec(ExpandConstant('{sys}\sc.exe'), 'delete KaravulService', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     Sleep(1000); // Silinmesi için bekle
+  end;
+
+  // Kurulum dosyaları kopyalandıktan sonra (appsettings.json hedefe taşındıktan sonra)
+  if CurStep = ssPostInstall then
+  begin
+    BotToken := Trim(TelegramPage.Values[0]);
+    if BotToken <> '' then
+    begin
+      AppSettingsPath := ExpandConstant('{app}\appsettings.Production.json');
+      if LoadStringsFromFile(AppSettingsPath, FileLines) then
+      begin
+        for i := 0 to GetArrayLength(FileLines) - 1 do
+        begin
+          // BotToken satırını bul ve '***' değerini değiştir
+          if (Pos('BotToken', FileLines[i]) > 0) and (Pos('***', FileLines[i]) > 0) then
+          begin
+            StringChangeEx(FileLines[i], '***', BotToken, True);
+          end;
+        end;
+        // Değişiklikleri dosyaya kaydet
+        SaveStringsToFile(AppSettingsPath, FileLines, False);
+      end;
+    end;
   end;
 end;
