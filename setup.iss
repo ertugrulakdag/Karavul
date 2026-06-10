@@ -66,6 +66,25 @@ begin
   TelegramPage.Add('Bot Token:', False);
 end;
 
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  BotToken: string;
+begin
+  Result := True;
+  if CurPageID = TelegramPage.ID then
+  begin
+    BotToken := Trim(TelegramPage.Values[0]);
+    if BotToken <> '' then
+    begin
+      if (Length(BotToken) < 6) or (Length(BotToken) > 256) then
+      begin
+        MsgBox('Bot Token geçerli uzunlukta değil. Lütfen en az 6, en fazla 256 karakter girin veya kullanmak istemiyorsanız boş bırakın.', mbError, MB_OK);
+        Result := False;
+      end;
+    end;
+  end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ResultCode: Integer;
@@ -73,6 +92,8 @@ var
   FileLines: TArrayOfString;
   i: Integer;
   BotToken: string;
+  LineStr: string;
+  P1, P2: Integer;
 begin
   // Kurulum başlamadan hemen önce mevcut servis varsa durdurup siliyoruz ki dosyalar kilitli kalmasın
   if CurStep = ssInstall then
@@ -94,10 +115,29 @@ begin
       begin
         for i := 0 to GetArrayLength(FileLines) - 1 do
         begin
-          // BotToken satırını bul ve '***' değerini değiştir
-          if (Pos('BotToken', FileLines[i]) > 0) and (Pos('***', FileLines[i]) > 0) then
+          LineStr := FileLines[i];
+          if Pos('"BotToken"', LineStr) > 0 then
           begin
-            StringChangeEx(FileLines[i], '***', BotToken, True);
+            P1 := Pos(':', LineStr);
+            if P1 > 0 then
+            begin
+              P2 := P1 + 1;
+              while (P2 <= Length(LineStr)) and (LineStr[P2] <> '"') do
+                P2 := P2 + 1;
+              
+              if P2 <= Length(LineStr) then
+              begin
+                P1 := P2 + 1;
+                while (P1 <= Length(LineStr)) and (LineStr[P1] <> '"') do
+                  P1 := P1 + 1;
+                
+                if P1 <= Length(LineStr) then
+                begin
+                  // Eski değeri BotToken ile değiştiriyoruz
+                  FileLines[i] := Copy(LineStr, 1, P2) + BotToken + Copy(LineStr, P1, Length(LineStr) - P1 + 1);
+                end;
+              end;
+            end;
           end;
         end;
         // Değişiklikleri dosyaya kaydet
