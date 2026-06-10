@@ -48,6 +48,9 @@ Name: "{commonprograms}\Karavul"; Filename: "http://127.0.0.1:9060"; IconFilenam
 Filename: "{sys}\sc.exe"; Parameters: "create KaravulService binPath= ""{app}\Karavul.exe"" start= auto DisplayName= ""Karavul Monitoring Service"""; Flags: runhidden
 Filename: "{sys}\sc.exe"; Parameters: "description KaravulService ""Karavul Yerel Monitor Servisi v1.0.2"""; Flags: runhidden
 
+; Kurulum bittikten sonra web arayüzünü açmak için (Bitti sayfasında checkbox oluşturur)
+Filename: "http://127.0.0.1:9060"; Description: "Uygulamayı aç."; Flags: postinstall shellexec
+
 [UninstallRun]
 ; Uninstall işlemi sırasında servisi durdur ve sil
 Filename: "{sys}\sc.exe"; Parameters: "stop KaravulService"; Flags: runhidden; RunOnceId: "StopService"
