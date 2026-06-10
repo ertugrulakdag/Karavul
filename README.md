@@ -121,6 +121,7 @@ dotnet publish src\Karavul.Host\Karavul.Host.csproj -c Release -r win-x64 --self
   "ChannelName": "Kanal Adı (Örn: Karavul)"
 }
 ```
+<img width="1356" height="978" alt="image" src="https://github.com/user-attachments/assets/a785dd88-0fc5-46d8-8e61-4acf2c4c3ab2" />
 
 ### Bilgileri Nasıl Alırsınız? / How to Get the Information?
 
