@@ -1,6 +1,8 @@
 @inject Karavul.Host.Localization.ILocalizationService Loc
 @{
     var currentPath = Context.Request.Path.Value ?? "";
+    var fullUrl = currentPath + Context.Request.QueryString.Value;
+    var returnUrlEncoded = System.Net.WebUtility.UrlEncode(fullUrl);
     var username = Context.Session.GetString("Username") ?? "Admin";
     var userRoleValue = Context.Session.GetInt32("UserRole") ?? (int)Karavul.Core.Enums.UserRole.Admin;
     var userRolesList = new List<string>();
@@ -63,7 +65,7 @@
             </nav>
 
             <div class="topbar-actions">
-                <a href="/SetLanguage?lang=@(Loc.CurrentLanguage == "tr" ? "en" : "tr")&returnUrl=@currentPath" class="theme-toggle" title="@Loc["dil-secimi"]" style="text-decoration: none; font-weight: bold; font-size: 14px; display:flex; align-items:center; justify-content:center;">
+                <a href="/SetLanguage?lang=@(Loc.CurrentLanguage == "tr" ? "en" : "tr")&returnUrl=@returnUrlEncoded" class="theme-toggle" title="@Loc["dil-secimi"]" style="text-decoration: none; font-weight: bold; font-size: 14px; display:flex; align-items:center; justify-content:center;">
                     @(Loc.CurrentLanguage == "tr" ? "EN" : "TR")
                 </a>
                 <button class="theme-toggle" id="themeToggle" title="@Loc["tema-degistir"]">

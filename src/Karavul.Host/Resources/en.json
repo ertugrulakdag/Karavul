@@ -131,5 +131,19 @@
   "monitor-ara": "Search monitor...",
   "ara": "SEARCH",
   "kod": "Code",
-  "koddan-ara": "Search by code..."
+  "koddan-ara": "Search by code...",
+  "tt-monitor-adi": "The name given to identify the source to be monitored.",
+  "tt-url": "The full address of the system or web page to be monitored.",
+  "tt-http-metodu": "The method to use when making the request (Usually GET).",
+  "tt-beklenen-http-kodu": "The successful response code required for the system to be considered up (e.g., 200).",
+  "tt-iletisim-grubu": "Contacts to be notified when there is a system failure or recovery.",
+  "tt-kontrol-araligi": "Determines how often the system will be checked in seconds.",
+  "tt-timeout": "The maximum time to wait for the system to respond.",
+  "tt-maks-yanit-suresi": "If the response time exceeds this value, the system is marked as slow (warning).",
+  "tt-tetikleme-suresi": "The confirmation time to wait before sending an immediate notification in case of an error.",
+  "tt-ssl-uyari-esigi": "Determines how many days before the SSL certificate expires a warning will be issued.",
+  "tt-aciklama": "Optional additional notes regarding the monitor.",
+  "tt-aktif": "Determines whether the monitor will run in the background.",
+  "tt-ssl-kontrolu-yap": "If the URL is HTTPS, it checks the validity and expiration date of the certificate.",
+  "tt-saglik-detaylarini-oku": "If the URL returns a Health Check JSON, it fetches the data and displays it in details."
 }

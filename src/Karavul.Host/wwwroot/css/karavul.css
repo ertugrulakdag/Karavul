@@ -419,7 +419,8 @@ td {
 .form-group { margin-bottom: 16px; }
 
 .form-label {
-  display: block;
+  display: flex;
+  align-items: center;
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-secondary);
@@ -478,6 +479,91 @@ select.form-control option { background: var(--bg-elevated); }
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid var(--border);
+}
+
+/*  Info Tooltips  */
+.info-tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+}
+
+.info-tooltip-btn {
+  background: var(--accent-dim);
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.info-tooltip-btn:hover, .info-tooltip-btn.active {
+  background: var(--accent);
+  color: var(--bg-base);
+}
+
+.info-tooltip-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+}
+
+.info-tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: normal;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  width: max-content;
+  max-width: 250px;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+  text-align: left;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.info-tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--border) transparent transparent transparent;
+}
+
+.info-tooltip-content::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-1px);
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--bg-elevated) transparent transparent transparent;
+  z-index: 1;
+}
+
+.info-tooltip-content.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-4px);
 }
 
 /*  Alerts  */

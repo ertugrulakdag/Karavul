@@ -250,4 +250,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Info Tooltips
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.info-tooltip-btn');
+        
+        // Hide all tooltips first
+        document.querySelectorAll('.info-tooltip-content').forEach(tt => {
+            if (btn && tt.previousElementSibling === btn) return;
+            tt.classList.remove('show');
+            if (tt.previousElementSibling) {
+                tt.previousElementSibling.classList.remove('active');
+            }
+        });
+
+        if (btn) {
+            e.stopPropagation();
+            const content = btn.nextElementSibling;
+            if (content && content.classList.contains('info-tooltip-content')) {
+                content.classList.toggle('show');
+                btn.classList.toggle('active');
+            }
+        }
+    });
 });

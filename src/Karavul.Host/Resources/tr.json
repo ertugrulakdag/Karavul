@@ -131,5 +131,19 @@
   "monitor-ara": "Monitör ara...",
   "ara": "ARA",
   "kod": "Kod",
-  "koddan-ara": "Koddan ara..."
+  "koddan-ara": "Koddan ara...",
+  "tt-monitor-adi": "İzlenecek kaynağı tanımak için verilen isim.",
+  "tt-url": "İzlenecek sistemin veya web sayfasının tam adresi.",
+  "tt-http-metodu": "İstek yapılırken kullanılacak metod (Genelde GET).",
+  "tt-beklenen-http-kodu": "Sistemin ayakta sayılması için dönmesi gereken başarılı yanıt kodu (örn: 200).",
+  "tt-iletisim-grubu": "Sistemde bir hata veya düzelme olduğunda bildirim gönderilecek kişiler.",
+  "tt-kontrol-araligi": "Sistemin kaç saniyede bir kontrol edileceğini belirler.",
+  "tt-timeout": "Sistemin cevap vermesi için beklenecek maksimum süredir.",
+  "tt-maks-yanit-suresi": "Yanıt süresi bu değeri aşarsa sistem yavaş (uyarı) olarak işaretlenir.",
+  "tt-tetikleme-suresi": "Hata durumunda hemen bildirim göndermemek için beklenecek teyit süresi.",
+  "tt-ssl-uyari-esigi": "SSL sertifikasının bitimine kaç gün kala uyarı verileceğini belirler.",
+  "tt-aciklama": "Monitörle ilgili isteğe bağlı ek notlar.",
+  "tt-aktif": "Monitörün arka planda çalışıp çalışmayacağını belirler.",
+  "tt-ssl-kontrolu-yap": "URL HTTPS ise sertifikanın geçerliliğini ve bitiş tarihini kontrol eder.",
+  "tt-saglik-detaylarini-oku": "Eğer URL bir Health Check JSON dönüyorsa, verileri alıp detaylarda gösterir."
 }
