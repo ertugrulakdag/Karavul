@@ -490,27 +490,38 @@ select.form-control option { background: var(--bg-elevated); }
 }
 
 .info-tooltip-btn {
-  background: var(--accent-dim);
+  background: var(--accent);
   border: none;
-  color: var(--accent);
+  color: #ffffff !important;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   transition: var(--transition);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 11px;
+  font-weight: bold;
+  font-style: italic;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.8;
 }
 
 .info-tooltip-btn:hover, .info-tooltip-btn.active {
+  opacity: 1;
   background: var(--accent);
-  color: var(--bg-base);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
 .info-tooltip-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2.5;
+  display: none !important;
+}
+
+.info-tooltip-btn::before {
+  content: "i";
 }
 
 .info-tooltip-content {
