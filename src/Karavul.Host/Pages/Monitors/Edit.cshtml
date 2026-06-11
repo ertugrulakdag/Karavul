@@ -63,14 +63,18 @@
             </div>
         </div>
 
-        <div class="form-grid">
+        <div class="form-grid-3">
             <div class="form-group">
-                <label class="form-label">Açıklama</label>
-                <input asp-for="Monitor.Description" class="form-control" placeholder="İsteğe bağlı not" />
+                <label class="form-label">Tetikleme Süresi (sn)</label>
+                <input asp-for="Monitor.TriggerRate" class="form-control" type="number" min="10" max="600" />
             </div>
             <div class="form-group">
                 <label class="form-label">SSL Uyarı Eşiği (gün)</label>
                 <input asp-for="Monitor.SslWarningDays" class="form-control" type="number" min="1" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Açıklama</label>
+                <input asp-for="Monitor.Description" class="form-control" placeholder="İsteğe bağlı not" />
             </div>
         </div>
 

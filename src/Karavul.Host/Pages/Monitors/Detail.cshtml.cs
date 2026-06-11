@@ -89,6 +89,7 @@ public class DetailModel : PageModel
             CheckIntervalSeconds = monitor.CheckIntervalSeconds,
             TimeoutSeconds = monitor.TimeoutSeconds,
             MaxResponseTimeMs = monitor.MaxResponseTimeMs,
+            TriggerRate = monitor.TriggerRate,
             CheckSsl = monitor.CheckSsl,
             ContactGroupName = group?.Name,
             UptimePercent24h = uptime24h,

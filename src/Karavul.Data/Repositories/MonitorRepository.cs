@@ -78,10 +78,12 @@ public class MonitorRepository : IMonitorRepository
         const string sql = """
             INSERT INTO Monitors (Id, Name, Url, MonitorType, HttpMethod, ExpectedStatusCode,
                 CheckIntervalSeconds, TimeoutSeconds, MaxResponseTimeMs, IsActive, CheckSsl,
-                SslWarningDays, IsHealthJson, ContactGroupId, Description, CurrentStatus, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy)
+                SslWarningDays, IsHealthJson, ContactGroupId, Description, CurrentStatus,
+                TriggerRate, IsInTriggerProcess, TriggerProcessStartedAt, TriggerProcessFailCount, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy)
             VALUES (@Id, @Name, @Url, @MonitorType, @HttpMethod, @ExpectedStatusCode,
                 @CheckIntervalSeconds, @TimeoutSeconds, @MaxResponseTimeMs, @IsActive, @CheckSsl,
-                @SslWarningDays, @IsHealthJson, @ContactGroupId, @Description, @CurrentStatus, @CreatedAt, @CreatedBy, @UpdatedAt, @UpdatedBy)
+                @SslWarningDays, @IsHealthJson, @ContactGroupId, @Description, @CurrentStatus,
+                @TriggerRate, @IsInTriggerProcess, @TriggerProcessStartedAt, @TriggerProcessFailCount, @CreatedAt, @CreatedBy, @UpdatedAt, @UpdatedBy)
             """;
 
         using var conn = _factory.CreateConnection();
@@ -109,6 +111,10 @@ public class MonitorRepository : IMonitorRepository
                 IsHealthJson = @IsHealthJson,
                 ContactGroupId = @ContactGroupId,
                 Description = @Description,
+                TriggerRate = @TriggerRate,
+                IsInTriggerProcess = @IsInTriggerProcess,
+                TriggerProcessStartedAt = @TriggerProcessStartedAt,
+                TriggerProcessFailCount = @TriggerProcessFailCount,
                 UpdatedAt = @UpdatedAt,
                 UpdatedBy = @UpdatedBy
             WHERE Id = @Id

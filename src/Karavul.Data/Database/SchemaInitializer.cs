@@ -106,6 +106,10 @@ public class SchemaInitializer
                 LastStatusCode INTEGER,
                 LastResponseTimeMs INTEGER,
                 LastErrorMessage TEXT,
+                TriggerRate INTEGER NOT NULL DEFAULT 60,
+                IsInTriggerProcess INTEGER NOT NULL DEFAULT 0,
+                TriggerProcessStartedAt TEXT,
+                TriggerProcessFailCount INTEGER NOT NULL DEFAULT 0,
                 CreatedAt TEXT NOT NULL,
                 CreatedBy TEXT,
                 UpdatedAt TEXT NOT NULL,
@@ -242,6 +246,10 @@ public class SchemaInitializer
 
         try { await conn.ExecuteAsync("ALTER TABLE Monitors ADD COLUMN CreatedBy TEXT;"); } catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
         try { await conn.ExecuteAsync("ALTER TABLE Monitors ADD COLUMN UpdatedBy TEXT;"); } catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
+        try { await conn.ExecuteAsync("ALTER TABLE Monitors ADD COLUMN TriggerRate INTEGER NOT NULL DEFAULT 60;"); } catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
+        try { await conn.ExecuteAsync("ALTER TABLE Monitors ADD COLUMN IsInTriggerProcess INTEGER NOT NULL DEFAULT 0;"); } catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
+        try { await conn.ExecuteAsync("ALTER TABLE Monitors ADD COLUMN TriggerProcessStartedAt TEXT;"); } catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
+        try { await conn.ExecuteAsync("ALTER TABLE Monitors ADD COLUMN TriggerProcessFailCount INTEGER NOT NULL DEFAULT 0;"); } catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
 
         try { await conn.ExecuteAsync("ALTER TABLE Incidents ADD COLUMN ResolvedBy TEXT;"); } catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
         

@@ -27,6 +27,10 @@ public class MonitorTarget
     public int? LastStatusCode { get; set; }
     public long? LastResponseTimeMs { get; set; }
     public string? LastErrorMessage { get; set; }
+    public int TriggerRate { get; set; } = 60;
+    public bool IsInTriggerProcess { get; set; } = false;
+    public DateTime? TriggerProcessStartedAt { get; set; }
+    public int TriggerProcessFailCount { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? CreatedBy { get; set; }
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

@@ -63,7 +63,7 @@ public class MonitorWorker : BackgroundService
 
         var now = DateTime.UtcNow;
         var tasks = monitors
-            .Where(m => ShouldCheck(m.Id, m.CheckIntervalSeconds, now))
+            .Where(m => ShouldCheck(m, now))
             .Select(m => CheckMonitorAsync(m, ct))
             .ToList();
 
@@ -71,10 +71,17 @@ public class MonitorWorker : BackgroundService
             await Task.WhenAll(tasks);
     }
 
-    private bool ShouldCheck(string monitorId, int intervalSeconds, DateTime now)
+    private bool ShouldCheck(MonitorTarget monitor, DateTime now)
     {
-        if (!_lastCheckTimes.TryGetValue(monitorId, out var lastCheck))
+        if (!_lastCheckTimes.TryGetValue(monitor.Id, out var lastCheck))
             return true;
+            
+        int intervalSeconds = monitor.CheckIntervalSeconds;
+        if (monitor.IsInTriggerProcess)
+        {
+            intervalSeconds = Math.Max(1, (monitor.TriggerRate - 1) / 2);
+        }
+        
         return (now - lastCheck).TotalSeconds >= intervalSeconds;
     }
 
@@ -91,6 +98,7 @@ public class MonitorWorker : BackgroundService
             var notificationService = scope.ServiceProvider.GetRequiredService<NotificationService>();
             var incidentRepo = scope.ServiceProvider.GetRequiredService<IIncidentRepository>();
             var sslRepo = scope.ServiceProvider.GetRequiredService<ISslCheckRepository>();
+            var monitorRepo = scope.ServiceProvider.GetRequiredService<IMonitorRepository>();
 
             var httpClient = _httpClientFactory.CreateClient("MonitorClient");
             httpClient.Timeout = TimeSpan.FromSeconds(monitor.TimeoutSeconds);
@@ -98,17 +106,62 @@ public class MonitorWorker : BackgroundService
             var check = await checkService.CheckHttpAsync(monitor, httpClient, ct);
 
             var openIncidentBefore = await incidentRepo.GetOpenByMonitorIdAsync(monitor.Id);
-            var incident = await incidentService.ProcessCheckResultAsync(check, monitor);
 
-            if (incident != null && incident.Status == Core.Enums.IncidentStatus.Open)
+            if (!check.IsSuccess)
             {
-                await notificationService.ProcessIncidentNotificationsAsync(incident, monitor, ct);
+                if (openIncidentBefore != null)
+                {
+                    await incidentService.ProcessCheckResultAsync(check, monitor);
+                }
+                else
+                {
+                    if (!monitor.IsInTriggerProcess)
+                    {
+                        monitor.IsInTriggerProcess = true;
+                        monitor.TriggerProcessStartedAt = DateTime.UtcNow;
+                        monitor.TriggerProcessFailCount = 1;
+                        await monitorRepo.UpdateAsync(monitor);
+                        await monitorRepo.UpdateStatusAsync(monitor.Id, monitor.CurrentStatus, check.StatusCode, check.ResponseTimeMs, check.ErrorMessage);
+                    }
+                    else
+                    {
+                        monitor.TriggerProcessFailCount++;
+                        if (monitor.TriggerProcessFailCount >= 3)
+                        {
+                            monitor.IsInTriggerProcess = false;
+                            await monitorRepo.UpdateAsync(monitor);
+
+                            var incident = await incidentService.ProcessCheckResultAsync(check, monitor);
+                            if (incident != null && incident.Status == Core.Enums.IncidentStatus.Open)
+                            {
+                                await notificationService.ProcessIncidentNotificationsAsync(incident, monitor, ct);
+                            }
+                        }
+                        else
+                        {
+                            await monitorRepo.UpdateAsync(monitor);
+                            await monitorRepo.UpdateStatusAsync(monitor.Id, monitor.CurrentStatus, check.StatusCode, check.ResponseTimeMs, check.ErrorMessage);
+                        }
+                    }
+                }
             }
-            else if (openIncidentBefore != null && incident == null)
+            else
             {
-                var resolvedIncident = await incidentRepo.GetByIdAsync(openIncidentBefore.Id);
-                if (resolvedIncident != null)
-                    await notificationService.ProcessRecoveryNotificationsAsync(resolvedIncident, monitor, ct);
+                if (monitor.IsInTriggerProcess)
+                {
+                    monitor.IsInTriggerProcess = false;
+                    monitor.TriggerProcessStartedAt = null;
+                    monitor.TriggerProcessFailCount = 0;
+                    await monitorRepo.UpdateAsync(monitor);
+                }
+
+                var incident = await incidentService.ProcessCheckResultAsync(check, monitor);
+                if (openIncidentBefore != null && incident == null)
+                {
+                    var resolvedIncident = await incidentRepo.GetByIdAsync(openIncidentBefore.Id);
+                    if (resolvedIncident != null)
+                        await notificationService.ProcessRecoveryNotificationsAsync(resolvedIncident, monitor, ct);
+                }
             }
 
             if (monitor.CheckSsl && monitor.Url.StartsWith("https", StringComparison.OrdinalIgnoreCase))

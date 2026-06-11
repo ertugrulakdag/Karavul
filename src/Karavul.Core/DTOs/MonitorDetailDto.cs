@@ -12,6 +12,7 @@ public class MonitorDetailDto
     public int CheckIntervalSeconds { get; set; }
     public int TimeoutSeconds { get; set; }
     public int MaxResponseTimeMs { get; set; }
+    public int TriggerRate { get; set; }
     public bool CheckSsl { get; set; }
     public string? ContactGroupName { get; set; }
     public double UptimePercent24h { get; set; }
