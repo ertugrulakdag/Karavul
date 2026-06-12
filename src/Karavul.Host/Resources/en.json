@@ -166,5 +166,11 @@
   "rol-duzenle": "Edit Role",
   "bilinmiyor": "Unknown",
   "gercek-zaman-grafigi": "Realtime Graph",
-  "tt-24s-uptime": "The ratio of successful checks (UP) to the total checks in the last 24 hours."
+  "tt-24s-uptime": "The ratio of successful checks (UP) to the total checks in the last 24 hours.",
+  "tt-stat-toplam": "The total number of all active and inactive monitors (monitoring points) registered in the system.",
+  "tt-stat-up": "The number of healthy systems that returned a successful response (e.g., HTTP 200) on their last check.",
+  "tt-stat-down": "The number of currently offline systems that were unreachable or returned an error (e.g., HTTP 404, 500) on their last check.",
+  "tt-stat-olaylar": "The total number of ongoing outages (DOWN) or warnings that have not been resolved yet. This number decreases when the system recovers.",
+  "tt-stat-uptime": "The average uptime (UP) percentage of all monitors based on checks performed in the last 24 hours. Indicates overall system health.",
+  "tt-stat-yanit": "The average response time of all currently working (UP) monitors. Reflects the overall speed of your systems."
 }

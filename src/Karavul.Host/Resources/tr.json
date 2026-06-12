@@ -166,5 +166,11 @@
   "rol-duzenle": "Rol Düzenle",
   "bilinmiyor": "Bilinmiyor",
   "gercek-zaman-grafigi": "Gerçek Zaman Grafiği",
-  "tt-24s-uptime": "Son 24 saat içindeki başarılı kontrollerin (UP), toplam kontrollere oranıdır."
+  "tt-24s-uptime": "Son 24 saat içindeki başarılı kontrollerin (UP), toplam kontrollere oranıdır.",
+  "tt-stat-toplam": "Sistemde kayıtlı olan aktif ve pasif tüm monitörlerin (izleme noktalarının) toplam sayısıdır.",
+  "tt-stat-up": "Son kontrolünde başarılı yanıt (örn. HTTP 200) alınmış, sorunsuz çalışan sistemlerin sayısıdır.",
+  "tt-stat-down": "Son kontrolünde ulaşılamayan veya hata (örn. HTTP 404, 500) veren, şu an kapalı durumdaki sistemlerin sayısıdır.",
+  "tt-stat-olaylar": "Henüz çözüme kavuşmamış olan devam eden kesinti (DOWN) veya uyarı durumlarının toplam sayısıdır. Sistem düzeldiğinde bu sayı azalır.",
+  "tt-stat-uptime": "Tüm monitörlerin son 24 saatte yapılan kontrollerinden elde edilen ortalama çalışma (UP) yüzdesidir. Genel sistem sağlığını gösterir.",
+  "tt-stat-yanit": "Çalışan (UP) durumdaki tüm monitörlerin son yanıt sürelerinin ortalamasıdır. Sistemin genel hızını yansıtır."
 }

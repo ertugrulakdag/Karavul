@@ -27,7 +27,7 @@
         </div>
         <div class="stat-info">
             <div class="stat-value" id="stat-total">@Model.Dashboard.TotalMonitors</div>
-            <div class="stat-label">@Loc["toplam-monitor"]</div>
+            <div class="stat-label">@Loc["toplam-monitor"] <span class="info-tooltip-container"><button type="button" class="info-tooltip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button><span class="info-tooltip-content tooltip-down" style="font-weight: normal; text-transform: none; white-space: normal; min-width: 250px;">@Loc["tt-stat-toplam"]</span></span></div>
         </div>
     </div>
 
@@ -37,7 +37,7 @@
         </div>
         <div class="stat-info">
             <div class="stat-value" id="stat-up">@Model.Dashboard.UpMonitors</div>
-            <div class="stat-label">@Loc["calisiyor-up"]</div>
+            <div class="stat-label">@Loc["calisiyor-up"] <span class="info-tooltip-container"><button type="button" class="info-tooltip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button><span class="info-tooltip-content tooltip-down" style="font-weight: normal; text-transform: none; white-space: normal; min-width: 250px;">@Loc["tt-stat-up"]</span></span></div>
         </div>
     </div>
 
@@ -47,7 +47,7 @@
         </div>
         <div class="stat-info">
             <div class="stat-value" id="stat-down">@Model.Dashboard.DownMonitors</div>
-            <div class="stat-label">@Loc["cokmus-down"]</div>
+            <div class="stat-label">@Loc["cokmus-down"] <span class="info-tooltip-container"><button type="button" class="info-tooltip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button><span class="info-tooltip-content tooltip-down" style="font-weight: normal; text-transform: none; white-space: normal; min-width: 250px;">@Loc["tt-stat-down"]</span></span></div>
         </div>
     </div>
 
@@ -57,7 +57,7 @@
         </div>
         <div class="stat-info">
             <div class="stat-value" id="stat-incidents">@Model.Dashboard.ActiveIncidents</div>
-            <div class="stat-label">@Loc["aktif-olaylar"]</div>
+            <div class="stat-label">@Loc["aktif-olaylar"] <span class="info-tooltip-container"><button type="button" class="info-tooltip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button><span class="info-tooltip-content tooltip-down" style="font-weight: normal; text-transform: none; white-space: normal; min-width: 250px;">@Loc["tt-stat-olaylar"]</span></span></div>
         </div>
     </div>
 
@@ -67,7 +67,7 @@
         </div>
         <div class="stat-info">
             <div class="stat-value" id="stat-uptime">@Model.Dashboard.Last24hUptimePercent<span style="font-size:1rem;">%</span></div>
-            <div class="stat-label">@Loc["24s-uptime-orani"]</div>
+            <div class="stat-label">@Loc["24s-uptime-orani"] <span class="info-tooltip-container"><button type="button" class="info-tooltip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button><span class="info-tooltip-content tooltip-down" style="font-weight: normal; text-transform: none; white-space: normal; min-width: 250px;">@Loc["tt-stat-uptime"]</span></span></div>
         </div>
     </div>
 
@@ -77,7 +77,7 @@
         </div>
         <div class="stat-info">
             <div class="stat-value" id="stat-response">@Model.Dashboard.AvgResponseTimeMs<span style="font-size:0.9rem; color:var(--text-muted);">ms</span></div>
-            <div class="stat-label">@Loc["ort-yanit-suresi"]</div>
+            <div class="stat-label">@Loc["ort-yanit-suresi"] <span class="info-tooltip-container"><button type="button" class="info-tooltip-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button><span class="info-tooltip-content tooltip-down" style="font-weight: normal; text-transform: none; white-space: normal; min-width: 250px;">@Loc["tt-stat-yanit"]</span></span></div>
         </div>
     </div>
 </div>
