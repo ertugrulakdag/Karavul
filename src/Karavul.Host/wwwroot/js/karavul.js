@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
             root.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             
-            if (window.realtimeChartInstance) {
+            if (window.location.pathname === '/' || window.location.pathname === '/Index' || window.location.pathname === '') {
+                window.location.reload();
+            } else if (window.realtimeChartInstance) {
                 initChart(window.currentChartPeriod || 'day'); // redraw with new colors
             }
         });
@@ -169,7 +171,7 @@ async function initChart(period = 'day') {
         
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const textColor = isDark ? '#cccccc' : '#495057';
-        const gridColor = isDark ? '#333333' : '#e5e5e5';
+        const gridColor = isDark ? '#005d67' : '#e5e5e5';
         
         const successColor = isDark ? '#4caf50' : '#388e3c'; // Green
         const successAlpha = isDark ? 'rgba(76,175,80,0.3)' : 'rgba(56,142,60,0.2)';
@@ -293,7 +295,7 @@ function initLiveChart() {
 
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const textColor = isDark ? '#cccccc' : '#495057';
-    const gridColor = isDark ? '#333333' : '#e5e5e5';
+    const gridColor = isDark ? '#005d67' : '#e5e5e5';
     
     const successColor = isDark ? '#4caf50' : '#388e3c'; // Green
     const failColor = isDark ? '#f44336' : '#d32f2f'; // Red
