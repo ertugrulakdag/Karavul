@@ -9,7 +9,6 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">@Loc["genel-bakis"]</h1>
-        <p class="page-subtitle">@Loc["son-guncelleme"]: <span id="last-update-time">@DateTime.Now.ToString("HH:mm:ss")</span></p>
     </div>
     @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
     {

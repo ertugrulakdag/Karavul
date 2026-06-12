@@ -411,10 +411,6 @@ async function refreshDashboardStats() {
         if (!response.ok) return;
         const result = await response.json();
 
-        // Update Time
-        const timeEl = document.getElementById('last-update-time');
-        if (timeEl) timeEl.textContent = new Date().toLocaleTimeString([], { hour12: false });
-
         // Update Stats Grid
         if (document.getElementById('stat-total')) document.getElementById('stat-total').textContent = result.stats.totalMonitors;
         if (document.getElementById('stat-up')) document.getElementById('stat-up').textContent = result.stats.upMonitors;
@@ -424,11 +420,11 @@ async function refreshDashboardStats() {
         if (document.getElementById('stat-response')) document.getElementById('stat-response').innerHTML = `${result.stats.avgResponseTimeMs}<span style="font-size:0.9rem; color:var(--text-muted);">ms</span>`;
 
         // Update History Chart
-        if (window.chartInstance && result.chartData) {
-            window.chartInstance.data.labels = result.chartData.labels;
-            window.chartInstance.data.datasets[0].data = result.chartData.failData;
-            window.chartInstance.data.datasets[1].data = result.chartData.successData;
-            window.chartInstance.update('none');
+        if (window.realtimeChartInstance && result.chartData) {
+            window.realtimeChartInstance.data.labels = result.chartData.labels;
+            window.realtimeChartInstance.data.datasets[0].data = result.chartData.failData;
+            window.realtimeChartInstance.data.datasets[1].data = result.chartData.successData;
+            window.realtimeChartInstance.update('none');
         }
 
         // Update Table
