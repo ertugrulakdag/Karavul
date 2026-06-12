@@ -165,5 +165,6 @@
   "iptal": "İptal",
   "rol-duzenle": "Rol Düzenle",
   "bilinmiyor": "Bilinmiyor",
-  "gercek-zaman-grafigi": "Gerçek Zaman Grafiği"
+  "gercek-zaman-grafigi": "Gerçek Zaman Grafiği",
+  "tt-24s-uptime": "Son 24 saat içindeki başarılı kontrollerin (UP), toplam kontrollere oranıdır."
 }

@@ -577,6 +577,29 @@ select.form-control option { background: var(--bg-elevated); }
   transform: translateX(-50%) translateY(-4px);
 }
 
+.info-tooltip-content.tooltip-down {
+  bottom: auto;
+  top: 100%;
+  transform: translateX(-50%) translateY(8px);
+}
+
+.info-tooltip-content.tooltip-down::after {
+  top: auto;
+  bottom: 100%;
+  border-color: transparent transparent var(--border) transparent;
+}
+
+.info-tooltip-content.tooltip-down::before {
+  top: auto;
+  bottom: 100%;
+  transform: translateX(-50%) translateY(1px);
+  border-color: transparent transparent var(--bg-elevated) transparent;
+}
+
+.info-tooltip-content.tooltip-down.show {
+  transform: translateX(-50%) translateY(4px);
+}
+
 /*  Alerts  */
 .alert {
   display: flex;

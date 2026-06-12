@@ -165,5 +165,6 @@
   "iptal": "Cancel",
   "rol-duzenle": "Edit Role",
   "bilinmiyor": "Unknown",
-  "gercek-zaman-grafigi": "Realtime Graph"
+  "gercek-zaman-grafigi": "Realtime Graph",
+  "tt-24s-uptime": "The ratio of successful checks (UP) to the total checks in the last 24 hours."
 }
