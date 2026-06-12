@@ -9,7 +9,7 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">@Loc["genel-bakis"]</h1>
-        <p class="page-subtitle">@Loc["son-guncelleme"]: @DateTime.Now.ToString("HH:mm:ss") · @Loc["otomatik-yenileme"]: <span id="refreshTimer">30</span>@Loc["saniye-kisa"]</p>
+        <p class="page-subtitle">@Loc["son-guncelleme"]: <span id="last-update-time">@DateTime.Now.ToString("HH:mm:ss")</span></p>
     </div>
     @if (HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
     {
@@ -27,7 +27,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <div class="stat-info">
-            <div class="stat-value">@Model.Dashboard.TotalMonitors</div>
+            <div class="stat-value" id="stat-total">@Model.Dashboard.TotalMonitors</div>
             <div class="stat-label">@Loc["toplam-monitor"]</div>
         </div>
     </div>
@@ -37,7 +37,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="stat-info">
-            <div class="stat-value">@Model.Dashboard.UpMonitors</div>
+            <div class="stat-value" id="stat-up">@Model.Dashboard.UpMonitors</div>
             <div class="stat-label">@Loc["calisiyor-up"]</div>
         </div>
     </div>
@@ -47,7 +47,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </div>
         <div class="stat-info">
-            <div class="stat-value">@Model.Dashboard.DownMonitors</div>
+            <div class="stat-value" id="stat-down">@Model.Dashboard.DownMonitors</div>
             <div class="stat-label">@Loc["cokmus-down"]</div>
         </div>
     </div>
@@ -57,7 +57,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div class="stat-info">
-            <div class="stat-value">@Model.Dashboard.ActiveIncidents</div>
+            <div class="stat-value" id="stat-incidents">@Model.Dashboard.ActiveIncidents</div>
             <div class="stat-label">@Loc["aktif-olaylar"]</div>
         </div>
     </div>
@@ -67,7 +67,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
         </div>
         <div class="stat-info">
-            <div class="stat-value">@Model.Dashboard.Last24hUptimePercent<span style="font-size:1rem;">%</span></div>
+            <div class="stat-value" id="stat-uptime">@Model.Dashboard.Last24hUptimePercent<span style="font-size:1rem;">%</span></div>
             <div class="stat-label">@Loc["24s-uptime-orani"]</div>
         </div>
     </div>
@@ -77,7 +77,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <div class="stat-info">
-            <div class="stat-value">@Model.Dashboard.AvgResponseTimeMs<span style="font-size:0.9rem; color:var(--text-muted);">ms</span></div>
+            <div class="stat-value" id="stat-response">@Model.Dashboard.AvgResponseTimeMs<span style="font-size:0.9rem; color:var(--text-muted);">ms</span></div>
             <div class="stat-label">@Loc["ort-yanit-suresi"]</div>
         </div>
     </div>
@@ -143,7 +143,7 @@
                         <th>@Loc["islemler"]</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="monitor-table-body">
                     @foreach (var m in Model.Dashboard.Monitors)
                     {
                         <tr>

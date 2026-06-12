@@ -144,4 +144,11 @@ public class IndexModel : PageModel
 
         return new JsonResult(new { labels, successData, failData });
     }
+
+    public async Task<IActionResult> OnGetStatsAsync(string period = "day")
+    {
+        await OnGetAsync();
+        var chartResult = await OnGetChartDataAsync(period) as JsonResult;
+        return new JsonResult(new { stats = Dashboard, chartData = chartResult?.Value });
+    }
 }

@@ -78,17 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Auto refresh dashboard every 30 seconds with countdown
+    // AJAX refresh dashboard every 30 seconds
     if (window.location.pathname === '/') {
-        let timeLeft = 30;
-        const timerEl = document.getElementById('refreshTimer');
         setInterval(() => {
-            timeLeft--;
-            if (timerEl) timerEl.textContent = timeLeft;
-            if (timeLeft <= 0) {
-                window.location.reload();
-            }
-        }, 1000);
+            refreshDashboardStats();
+        }, 30000);
     }
 
     // Dynamic email/phone input management
@@ -396,4 +390,107 @@ function initLiveChart() {
         
         liveChartInstance.update('none');
     }, 1000);
+}
+
+async function refreshDashboardStats() {
+    try {
+        const response = await fetch(`/?handler=Stats&period=${window.currentChartPeriod || 'day'}`);
+        if (!response.ok) return;
+        const result = await response.json();
+
+        // Update Time
+        const timeEl = document.getElementById('last-update-time');
+        if (timeEl) timeEl.textContent = new Date().toLocaleTimeString([], { hour12: false });
+
+        // Update Stats Grid
+        if (document.getElementById('stat-total')) document.getElementById('stat-total').textContent = result.stats.totalMonitors;
+        if (document.getElementById('stat-up')) document.getElementById('stat-up').textContent = result.stats.upMonitors;
+        if (document.getElementById('stat-down')) document.getElementById('stat-down').textContent = result.stats.downMonitors;
+        if (document.getElementById('stat-incidents')) document.getElementById('stat-incidents').textContent = result.stats.activeIncidents;
+        if (document.getElementById('stat-uptime')) document.getElementById('stat-uptime').innerHTML = `${result.stats.last24hUptimePercent}<span style="font-size:1rem;">%</span>`;
+        if (document.getElementById('stat-response')) document.getElementById('stat-response').innerHTML = `${result.stats.avgResponseTimeMs}<span style="font-size:0.9rem; color:var(--text-muted);">ms</span>`;
+
+        // Update History Chart
+        if (window.chartInstance && result.chartData) {
+            window.chartInstance.data.labels = result.chartData.labels;
+            window.chartInstance.data.datasets[0].data = result.chartData.failData;
+            window.chartInstance.data.datasets[1].data = result.chartData.successData;
+            window.chartInstance.update('none');
+        }
+
+        // Update Table
+        const tbody = document.getElementById('monitor-table-body');
+        if (tbody && result.stats.monitors) {
+            tbody.innerHTML = '';
+            result.stats.monitors.forEach(m => {
+                const tr = document.createElement('tr');
+                
+                let badge = '';
+                if (!m.isActive) badge = '<span class="badge badge-paused">⏸ PAUSED</span>';
+                else if (m.currentStatus === 1) badge = '<span class="badge badge-up">✓ UP</span>';
+                else if (m.currentStatus === 2) badge = '<span class="badge badge-down">✗ DOWN</span>';
+                else if (m.currentStatus === 3) badge = '<span class="badge badge-warning">⚠ WARN</span>';
+                else badge = '<span class="badge badge-unknown">? -</span>';
+
+                let errorHtml = '';
+                if (m.lastErrorMessage && m.currentStatus !== 1) {
+                    errorHtml = `<div style="font-size:0.72rem; color:var(--red); margin-top:2px;">${escapeHtml(m.lastErrorMessage)}</div>`;
+                }
+
+                let timeStr = '-';
+                if (m.lastCheckedAt) {
+                    const d = new Date(m.lastCheckedAt);
+                    timeStr = d.toLocaleTimeString([], { hour12: false });
+                }
+
+                let statusHtml = m.lastStatusCode 
+                    ? `<span style="font-family:monospace; color:${m.lastStatusCode < 400 ? 'var(--green)' : 'var(--red)'};">${m.lastStatusCode}</span>` 
+                    : '<span style="color:var(--text-muted);">-</span>';
+
+                let respHtml = m.lastResponseTimeMs != null 
+                    ? `<span class="response-time ${m.lastResponseTimeMs < 500 ? 'fast' : (m.lastResponseTimeMs < 2000 ? 'medium' : 'slow')}">${m.lastResponseTimeMs} ms</span>` 
+                    : '<span style="color:var(--text-muted);">-</span>';
+
+                let upColor = m.uptimePercent24h >= 99 ? 'var(--green)' : (m.uptimePercent24h >= 90 ? 'var(--yellow)' : 'var(--red)');
+
+                let actionHtml = `
+                    <div class="actions">
+                        <a href="/Monitors/Detail?id=${m.id}" class="btn btn-secondary btn-sm btn-icon" title="Detay">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </a>
+                        <a href="/Monitors/Edit?id=${m.id}" class="btn btn-secondary btn-sm btn-icon" title="Düzenle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </a>
+                    </div>
+                `;
+
+                tr.innerHTML = `
+                    <td>${badge}</td>
+                    <td>
+                        <div class="monitor-name">${escapeHtml(m.name)}</div>
+                        <div class="url-text">${escapeHtml(m.url)}</div>
+                        ${errorHtml}
+                    </td>
+                    <td style="color:var(--text-muted); font-size:0.8rem;">${timeStr}</td>
+                    <td>${statusHtml}</td>
+                    <td class="response-time-cell">${respHtml}</td>
+                    <td>
+                        <span style="color:${upColor}; font-weight:600;">${m.uptimePercent24h}%</span>
+                    </td>
+                    <td style="color:var(--text-muted); font-size:0.8rem;">${m.contactGroupName || '-'}</td>
+                    <td>${actionHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (e) {
+        console.error("Stats refresh failed", e);
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
 }
