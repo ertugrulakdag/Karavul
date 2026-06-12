@@ -164,5 +164,6 @@
   "kaydet": "Save",
   "iptal": "Cancel",
   "rol-duzenle": "Edit Role",
-  "bilinmiyor": "Unknown"
+  "bilinmiyor": "Unknown",
+  "gercek-zaman-grafigi": "Realtime Graph"
 }

@@ -99,11 +99,13 @@ public class MonitorWorker : BackgroundService
             var incidentRepo = scope.ServiceProvider.GetRequiredService<IIncidentRepository>();
             var sslRepo = scope.ServiceProvider.GetRequiredService<ISslCheckRepository>();
             var monitorRepo = scope.ServiceProvider.GetRequiredService<IMonitorRepository>();
+            var realtimeGraphService = scope.ServiceProvider.GetRequiredService<Karavul.Host.Services.RealtimeGraphService>();
 
             var httpClient = _httpClientFactory.CreateClient("MonitorClient");
             httpClient.Timeout = TimeSpan.FromSeconds(monitor.TimeoutSeconds);
 
             var check = await checkService.CheckHttpAsync(monitor, httpClient, ct);
+            await realtimeGraphService.BroadcastCheckResultAsync(check.IsSuccess);
 
             var openIncidentBefore = await incidentRepo.GetOpenByMonitorIdAsync(monitor.Id);
 

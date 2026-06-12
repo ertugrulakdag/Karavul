@@ -30,6 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
         initChart(window.currentChartPeriod);
     }
 
+    const liveChartCanvas = document.getElementById('liveChart');
+    if (liveChartCanvas) {
+        initLiveChart();
+    }
+
     // Chart period buttons
     document.querySelectorAll('.chart-period-buttons .btn').forEach(btn => {
         btn.addEventListener('click', e => {
@@ -274,3 +279,121 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function initLiveChart() {
+    const canvas = document.getElementById('liveChart');
+    if (!canvas) return;
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#cccccc' : '#495057';
+    const gridColor = isDark ? '#333333' : '#e5e5e5';
+    
+    const successColor = isDark ? '#4caf50' : '#388e3c'; // Green
+    const failColor = isDark ? '#f44336' : '#d32f2f'; // Red
+    
+    const successFill = isDark ? 'rgba(76,175,80,0.3)' : 'rgba(56,142,60,0.2)';
+    const failFill = isDark ? 'rgba(244,67,54,0.3)' : 'rgba(211,47,47,0.2)';
+
+    const MAX_POINTS = 60;
+    
+    const labels = Array(MAX_POINTS).fill('');
+    // Fill initial labels with past 60 seconds roughly
+    for (let i = 0; i < MAX_POINTS; i++) {
+        let d = new Date();
+        d.setSeconds(d.getSeconds() - (MAX_POINTS - i));
+        labels[i] = d.toLocaleTimeString([], { hour12: false });
+    }
+    const successData = Array(MAX_POINTS).fill(0);
+    const failData = Array(MAX_POINTS).fill(0);
+    
+    let currentSuccess = 0;
+    let currentFail = 0;
+
+    const liveChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Başarısız',
+                    data: failData,
+                    borderColor: failColor,
+                    backgroundColor: failFill,
+                    borderWidth: 1,
+                    fill: true,
+                    tension: 0,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                },
+                {
+                    label: 'Başarılı',
+                    data: successData,
+                    borderColor: successColor,
+                    backgroundColor: successFill,
+                    borderWidth: 1,
+                    fill: true,
+                    tension: 0,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 0 },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: { 
+                legend: { display: false },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: { color: textColor, maxTicksLimit: 10 }
+                },
+                y: {
+                    stacked: true,
+                    grid: { color: gridColor },
+                    ticks: { color: textColor, precision: 0 },
+                    beginAtZero: true,
+                    suggestedMax: 5
+                }
+            }
+        }
+    });
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}/ws/realtime`);
+    
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'check_result') {
+                if (data.isSuccess) {
+                    currentSuccess++;
+                } else {
+                    currentFail++;
+                }
+            }
+        } catch (e) { }
+    };
+
+    setInterval(() => {
+        successData.shift();
+        failData.shift();
+        labels.shift();
+        
+        successData.push(currentSuccess);
+        failData.push(currentFail);
+        labels.push(new Date().toLocaleTimeString([], { hour12: false }));
+        
+        currentSuccess = 0;
+        currentFail = 0;
+        
+        liveChartInstance.update('none');
+    }, 1000);
+}

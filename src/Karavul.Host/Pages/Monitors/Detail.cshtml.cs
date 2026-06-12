@@ -17,6 +17,7 @@ public class DetailModel : PageModel
     private readonly Karavul.Services.IncidentService _incidentService;
     private readonly Karavul.Services.NotificationService _notificationService;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly Karavul.Host.Services.RealtimeGraphService _realtimeGraphService;
 
     public DetailModel(
         IMonitorRepository monitorRepo,
@@ -27,7 +28,8 @@ public class DetailModel : PageModel
         Karavul.Services.MonitorCheckService checkService,
         Karavul.Services.IncidentService incidentService,
         Karavul.Services.NotificationService notificationService,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        Karavul.Host.Services.RealtimeGraphService realtimeGraphService)
     {
         _monitorRepo = monitorRepo;
         _checkRepo = checkRepo;
@@ -38,6 +40,7 @@ public class DetailModel : PageModel
         _incidentService = incidentService;
         _notificationService = notificationService;
         _httpClientFactory = httpClientFactory;
+        _realtimeGraphService = realtimeGraphService;
     }
 
     public MonitorTarget Monitor { get; set; } = null!;
@@ -138,6 +141,7 @@ public class DetailModel : PageModel
         httpClient.Timeout = TimeSpan.FromSeconds(monitor.TimeoutSeconds);
 
         var check = await _checkService.CheckHttpAsync(monitor, httpClient, default);
+        await _realtimeGraphService.BroadcastCheckResultAsync(check.IsSuccess);
 
         var openIncidentBefore = await _incidentRepo.GetOpenByMonitorIdAsync(monitor.Id);
         var incident = await _incidentService.ProcessCheckResultAsync(check, monitor);

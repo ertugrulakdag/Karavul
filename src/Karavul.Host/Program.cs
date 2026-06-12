@@ -60,6 +60,7 @@ try
     builder.Services.AddKaravulServices(builder.Configuration);
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
+    builder.Services.AddSingleton<Karavul.Host.Services.RealtimeGraphService>();
 
     // Razor Pages + Session (auth için)
     builder.Services.AddRazorPages();
@@ -122,6 +123,7 @@ try
     }
 
     app.UseStaticFiles();
+    app.UseWebSockets();
     app.UseRouting();
     app.UseSession();
 
@@ -229,6 +231,20 @@ try
         }
 
         await next();
+    });
+
+    app.Map("/ws/realtime", async context =>
+    {
+        if (context.WebSockets.IsWebSocketRequest)
+        {
+            var ws = await context.WebSockets.AcceptWebSocketAsync();
+            var realtimeService = context.RequestServices.GetRequiredService<Karavul.Host.Services.RealtimeGraphService>();
+            await realtimeService.HandleConnectionAsync(ws);
+        }
+        else
+        {
+            context.Response.StatusCode = 400;
+        }
     });
 
     app.MapRazorPages();
