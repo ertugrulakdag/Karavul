@@ -27,7 +27,7 @@ public class IndexModel : PageModel
 
     public DashboardDto Dashboard { get; set; } = new();
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(int limit = 10)
     {
         var monitors = (await _monitorRepo.GetAllAsync()).ToList();
         var groups = (await _groupRepo.GetAllAsync()).ToList();
@@ -73,7 +73,11 @@ public class IndexModel : PageModel
             ActiveIncidents = await _incidentRepo.GetActiveCountAsync(),
             Last24hUptimePercent = monitors.Any() ? Math.Round(totalUptime / monitors.Count, 2) : 100.0,
             AvgResponseTimeMs = responsiveMonitors > 0 ? Math.Round(totalResponseTime / responsiveMonitors, 0) : 0,
-            Monitors = summaries.OrderBy(m => m.CurrentStatus).ThenBy(m => m.Name).ToList()
+            Monitors = summaries
+                .OrderBy(m => m.CurrentStatus == MonitorStatus.Down ? 0 : (m.CurrentStatus == MonitorStatus.Warning ? 1 : 2))
+                .ThenBy(m => m.UptimePercent24h)
+                .Take(limit)
+                .ToList()
         };
     }
 
@@ -145,9 +149,9 @@ public class IndexModel : PageModel
         return new JsonResult(new { labels, successData, failData });
     }
 
-    public async Task<IActionResult> OnGetStatsAsync(string period = "day")
+    public async Task<IActionResult> OnGetStatsAsync(string period = "day", int limit = 10)
     {
-        await OnGetAsync();
+        await OnGetAsync(limit);
         var chartResult = await OnGetChartDataAsync(period) as JsonResult;
         return new JsonResult(new { stats = Dashboard, chartData = chartResult?.Value });
     }

@@ -110,9 +110,13 @@
 
 <!-- Monitor List -->
 <div class="card">
-    <div class="card-header">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
         <h2 class="card-title">@Loc["monitor-listesi"]</h2>
-        <span style="font-size:0.78rem; color:var(--text-muted);">@Model.Dashboard.TotalMonitors @Loc["monitor-kucuk"]</span>
+        <div class="btn-group monitor-limit-buttons" style="display:flex; gap:4px;">
+            <button type="button" class="btn btn-secondary btn-sm active" data-limit="10">10</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-limit="100">100</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-limit="1000">1000</button>
+        </div>
     </div>
 
     @if (!Model.Dashboard.Monitors.Any())

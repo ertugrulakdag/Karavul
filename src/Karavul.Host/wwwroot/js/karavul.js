@@ -50,6 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Monitor limit buttons
+    window.currentMonitorLimit = 10;
+    document.querySelectorAll('.monitor-limit-buttons .btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            document.querySelectorAll('.monitor-limit-buttons .btn').forEach(b => b.classList.remove('active'));
+            const target = e.target;
+            target.classList.add('active');
+            
+            window.currentMonitorLimit = parseInt(target.getAttribute('data-limit') || '10', 10);
+            refreshDashboardStats();
+        });
+    });
+
     // Auto-dismiss alerts
     document.querySelectorAll('.alert').forEach(el => {
         setTimeout(() => {
@@ -394,7 +407,7 @@ function initLiveChart() {
 
 async function refreshDashboardStats() {
     try {
-        const response = await fetch(`/?handler=Stats&period=${window.currentChartPeriod || 'day'}`);
+        const response = await fetch(`/?handler=Stats&period=${window.currentChartPeriod || 'day'}&limit=${window.currentMonitorLimit || 10}`);
         if (!response.ok) return;
         const result = await response.json();
 
