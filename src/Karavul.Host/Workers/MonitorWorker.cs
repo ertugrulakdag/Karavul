@@ -62,10 +62,19 @@ public class MonitorWorker : BackgroundService
         if (!monitors.Any()) return;
 
         var now = DateTime.UtcNow;
-        var tasks = monitors
-            .Where(m => ShouldCheck(m, now))
-            .Select(m => CheckMonitorAsync(m, ct))
-            .ToList();
+        var eligibleMonitors = monitors.Where(m => ShouldCheck(m, now)).ToList();
+
+        var tasks = new List<Task>();
+        foreach (var m in eligibleMonitors)
+        {
+            tasks.Add(CheckMonitorAsync(m, ct));
+            
+            // Kullanıcının isteği: 666ms bekleyerek sırayla başlat
+            if (eligibleMonitors.Last() != m)
+            {
+                await Task.Delay(666, ct);
+            }
+        }
 
         if (tasks.Any())
             await Task.WhenAll(tasks);

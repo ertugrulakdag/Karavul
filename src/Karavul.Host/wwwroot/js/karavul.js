@@ -328,7 +328,7 @@ function initLiveChart() {
                     backgroundColor: failFill,
                     borderWidth: 1,
                     fill: true,
-                    tension: 0,
+                    tension: 0.2,// (kavis) orani
                     pointRadius: 0,
                     pointHoverRadius: 4
                 },
@@ -339,7 +339,7 @@ function initLiveChart() {
                     backgroundColor: successFill,
                     borderWidth: 1,
                     fill: true,
-                    tension: 0,
+                    tension: 0.2,// (kavis) orani
                     pointRadius: 0,
                     pointHoverRadius: 4
                 }
@@ -348,7 +348,10 @@ function initLiveChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: { duration: 0 },
+            animation: {
+                duration: 999,
+                easing: 'linear'
+            },
             interaction: {
                 mode: 'index',
                 intersect: false,
@@ -401,7 +404,7 @@ function initLiveChart() {
         currentSuccess = 0;
         currentFail = 0;
         
-        liveChartInstance.update('none');
+        liveChartInstance.update();
     }, 1000);
 }
 
