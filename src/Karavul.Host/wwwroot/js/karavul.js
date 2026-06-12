@@ -217,7 +217,7 @@ async function initChart(period = 'day') {
                 scales: {
                     x: {
                         grid: { color: gridColor },
-                        ticks: { color: textColor, maxTicksLimit: 15 }
+                        ticks: { color: textColor, maxTicksLimit: 24 }
                     },
                     y: {
                         stacked: true,

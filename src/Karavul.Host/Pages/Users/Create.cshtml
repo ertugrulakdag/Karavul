@@ -1,49 +1,50 @@
 @page
 @using Karavul.Core.Enums
 @model Karavul.Host.Pages.Users.CreateModel
+@inject Karavul.Host.Localization.ILocalizationService Loc
 @{
-    ViewData["Title"] = "Yeni Kullanıcı";
+    ViewData["Title"] = Loc["yeni-kullanici"];
 }
 
 <div class="page-header">
     <div class="header-content">
-        <h1 class="page-title">Yeni Kullanıcı Oluştur</h1>
+        <h1 class="page-title">@Loc["yeni-kullanici-olustur"]</h1>
     </div>
 </div>
 
 <div class="card" style="max-width: 600px; margin: 0 auto;">
     <form method="post">
         <div class="form-group">
-            <label class="form-label">Kullanıcı Adı</label>
+            <label class="form-label">@Loc["kullanici-adi"]</label>
             <input type="text" asp-for="Username" class="form-control" required autocomplete="off" />
         </div>
 
         <div class="form-group">
-            <label class="form-label">Şifre (Geçici)</label>
+            <label class="form-label">@Loc["sifre-gecici"]</label>
             <input type="password" asp-for="Password" class="form-control" required autocomplete="new-password" />
-            <small class="form-text text-muted">Kullanıcı ilk girişinde şifresini değiştirmek zorundadır.</small>
+            <small class="form-text text-muted">@Loc["ilk-giris-sifre-degisim-uyarisi"]</small>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Roller</label>
+            <label class="form-label">@Loc["roller"]</label>
             <div class="checkbox-list">
                 @foreach (var role in Enum.GetValues<UserRole>())
                 {
                     <label class="checkbox-label" style="display: block; margin-bottom: 8px;">
                         <input type="checkbox" name="SelectedRoles" value="@role" @(role == UserRole.Viewer ? "checked" : "") />
                         <strong>@role</strong>
-                        @if (role == UserRole.Admin) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">(Sistemdeki her şeye tam erişim)</span> }
-                        @if (role == UserRole.Editor) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">(İzleme noktası ve iletişim grubu yönetimi)</span> }
-                        @if (role == UserRole.Operator) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">(Alarmlara müdahale etme yetkisi)</span> }
-                        @if (role == UserRole.Viewer) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">(Sadece görüntüleme)</span> }
+                        @if (role == UserRole.Admin) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">@Loc["rol-admin-aciklama"]</span> }
+                        @if (role == UserRole.Editor) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">@Loc["rol-editor-aciklama"]</span> }
+                        @if (role == UserRole.Operator) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">@Loc["rol-operator-aciklama"]</span> }
+                        @if (role == UserRole.Viewer) { <span class="text-muted" style="font-size: 12px; margin-left: 8px;">@Loc["rol-viewer-aciklama"]</span> }
                     </label>
                 }
             </div>
         </div>
 
         <div class="form-actions" style="margin-top: 24px; display: flex; gap: 12px;">
-            <button type="submit" class="btn btn-primary">Kaydet</button>
-            <a href="/Users/Index" class="btn btn-outline">İptal</a>
+            <button type="submit" class="btn btn-primary">@Loc["kaydet"]</button>
+            <a href="/Users/Index" class="btn btn-outline">@Loc["iptal"]</a>
         </div>
     </form>
 </div>

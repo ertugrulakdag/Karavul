@@ -123,7 +123,7 @@ public class IndexModel : PageModel
 
             if (period == "day" || string.IsNullOrEmpty(period))
             {
-                labels.Add(currentBucket.ToLocalTime().ToString("hh:mm tt", new System.Globalization.CultureInfo("en-US")));
+                labels.Add(currentBucket.AddHours(1).ToLocalTime().ToString("HH:00"));
             }
             else
             {
