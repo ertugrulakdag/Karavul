@@ -336,7 +336,7 @@ function initLiveChart() {
                     fill: true,
                     tension: 0.2,// (kavis) orani
                     pointRadius: 0,
-                    pointHoverRadius: 4
+                    pointHoverRadius: function(context) { return context.raw > 0 ? 4 : 0; }
                 },
                 {
                     label: 'Başarılı',
@@ -347,7 +347,7 @@ function initLiveChart() {
                     fill: true,
                     tension: 0.2,// (kavis) orani
                     pointRadius: 0,
-                    pointHoverRadius: 4
+                    pointHoverRadius: function(context) { return context.raw > 0 ? 4 : 0; }
                 }
             ]
         },
