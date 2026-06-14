@@ -46,7 +46,7 @@ public class RealtimeGraphService
         }
     }
 
-    public async Task BroadcastCheckResultAsync(bool isSuccess)
+    public async Task BroadcastCheckResultAsync(bool isSuccess, string monitorName)
     {
         if (_sockets.IsEmpty) return;
 
@@ -54,6 +54,7 @@ public class RealtimeGraphService
         {
             type = "check_result",
             isSuccess = isSuccess,
+            monitorName = monitorName,
             timestamp = DateTime.UtcNow.ToString("o")
         });
 

@@ -141,7 +141,7 @@ public class DetailModel : PageModel
         httpClient.Timeout = TimeSpan.FromSeconds(monitor.TimeoutSeconds);
 
         var check = await _checkService.CheckHttpAsync(monitor, httpClient, default);
-        await _realtimeGraphService.BroadcastCheckResultAsync(check.IsSuccess);
+        await _realtimeGraphService.BroadcastCheckResultAsync(check.IsSuccess, monitor.Name);
 
         var openIncidentBefore = await _incidentRepo.GetOpenByMonitorIdAsync(monitor.Id);
         var incident = await _incidentService.ProcessCheckResultAsync(check, monitor);

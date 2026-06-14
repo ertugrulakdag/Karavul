@@ -114,7 +114,7 @@ public class MonitorWorker : BackgroundService
             httpClient.Timeout = TimeSpan.FromSeconds(monitor.TimeoutSeconds);
 
             var check = await checkService.CheckHttpAsync(monitor, httpClient, ct);
-            await realtimeGraphService.BroadcastCheckResultAsync(check.IsSuccess);
+            await realtimeGraphService.BroadcastCheckResultAsync(check.IsSuccess, monitor.Name);
 
             var openIncidentBefore = await incidentRepo.GetOpenByMonitorIdAsync(monitor.Id);
 

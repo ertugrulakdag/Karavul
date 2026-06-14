@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme Management
     const themeToggle = document.getElementById('themeToggle');
     const root = document.documentElement;
-    
+
     // Auto-detect or load from localStorage
     let currentTheme = localStorage.getItem('theme');
     if (!currentTheme) {
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             root.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            
+
             if (window.location.pathname === '/' || window.location.pathname === '/Index' || window.location.pathname === '') {
                 window.location.reload();
             } else if (window.realtimeChartInstance) {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.chart-period-buttons .btn').forEach(b => b.classList.remove('active'));
             const target = e.target;
             target.classList.add('active');
-            
+
             const period = target.getAttribute('data-period');
             if (window.currentChartPeriod !== period) {
                 window.currentChartPeriod = period;
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.monitor-limit-buttons .btn').forEach(b => b.classList.remove('active'));
             const target = e.target;
             target.classList.add('active');
-            
+
             window.currentMonitorLimit = parseInt(target.getAttribute('data-limit') || '10', 10);
             refreshDashboardStats();
         });
@@ -163,19 +163,19 @@ function createDynamicRow(type, idx, placeholder) {
 async function initChart(period = 'day') {
     const canvas = document.getElementById('realtimeChart');
     if (!canvas) return;
-    
+
     try {
         const response = await fetch(`/?handler=ChartData&period=${period}`);
         if (!response.ok) return;
         const result = await response.json();
-        
+
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const textColor = isDark ? '#cccccc' : '#495057';
         const gridColor = isDark ? '#005d67' : '#e5e5e5';
-        
+
         const successColor = isDark ? '#4caf50' : '#388e3c'; // Green
         const successAlpha = isDark ? 'rgba(76,175,80,0.3)' : 'rgba(56,142,60,0.2)';
-        
+
         const failColor = isDark ? '#f44336' : '#d32f2f'; // Red
         const failAlpha = isDark ? 'rgba(244,67,54,0.3)' : 'rgba(211,47,47,0.2)';
 
@@ -219,7 +219,7 @@ async function initChart(period = 'day') {
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: { duration: 0 },
-                plugins: { 
+                plugins: {
                     legend: { display: true, labels: { color: textColor } },
                     tooltip: { mode: 'index', intersect: false }
                 },
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // User Dropdown Menu
     const userMenuBtn = document.getElementById('userMenuBtn');
     const userDropdownMenu = document.getElementById('userDropdownMenu');
-    
+
     if (userMenuBtn && userDropdownMenu) {
         userMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Info Tooltips
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.info-tooltip-btn');
-        
+
         // Hide all tooltips first
         document.querySelectorAll('.info-tooltip-content').forEach(tt => {
             if (btn && tt.previousElementSibling === btn) return;
@@ -296,15 +296,15 @@ function initLiveChart() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const textColor = isDark ? '#cccccc' : '#495057';
     const gridColor = isDark ? '#005d67' : '#e5e5e5';
-    
+
     const successColor = isDark ? '#4caf50' : '#388e3c'; // Green
     const failColor = isDark ? '#f44336' : '#d32f2f'; // Red
-    
+
     const successFill = isDark ? 'rgba(76,175,80,0.3)' : 'rgba(56,142,60,0.2)';
     const failFill = isDark ? 'rgba(244,67,54,0.3)' : 'rgba(211,47,47,0.2)';
 
     const MAX_POINTS = 60;
-    
+
     const labels = Array(MAX_POINTS).fill('');
     // Fill initial labels with past 60 seconds roughly
     for (let i = 0; i < MAX_POINTS; i++) {
@@ -314,9 +314,13 @@ function initLiveChart() {
     }
     const successData = Array(MAX_POINTS).fill(0);
     const failData = Array(MAX_POINTS).fill(0);
-    
+    const successNames = Array.from({ length: MAX_POINTS }, () => []);
+    const failNames = Array.from({ length: MAX_POINTS }, () => []);
+
     let currentSuccess = 0;
     let currentFail = 0;
+    let currentSuccessNames = [];
+    let currentFailNames = [];
 
     const liveChartInstance = new Chart(canvas.getContext('2d'), {
         type: 'line',
@@ -358,9 +362,24 @@ function initLiveChart() {
                 mode: 'index',
                 intersect: false,
             },
-            plugins: { 
+            plugins: {
                 legend: { display: false },
-                tooltip: { enabled: true }
+                tooltip: {
+                    enabled: true,
+                    position: 'nearest',
+                    yAlign: 'bottom',
+                    xAlign: 'center',
+                    callbacks: {
+                        label: function (context) {
+                            let namesArray = context.datasetIndex === 0 ? failNames[context.dataIndex] : successNames[context.dataIndex];
+                            let label = context.dataset.label + ': ' + context.parsed.y;
+                            if (namesArray && namesArray.length > 0) {
+                                label += ' (' + namesArray.join(', ') + ')';
+                            }
+                            return label;
+                        }
+                    }
+                }
             },
             scales: {
                 x: {
@@ -380,15 +399,17 @@ function initLiveChart() {
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws/realtime`);
-    
+
     ws.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
             if (data.type === 'check_result') {
                 if (data.isSuccess) {
                     currentSuccess++;
+                    if (data.monitorName) currentSuccessNames.push(data.monitorName);
                 } else {
                     currentFail++;
+                    if (data.monitorName) currentFailNames.push(data.monitorName);
                 }
             }
         } catch (e) { }
@@ -398,14 +419,20 @@ function initLiveChart() {
         successData.shift();
         failData.shift();
         labels.shift();
-        
+        successNames.shift();
+        failNames.shift();
+
         successData.push(currentSuccess);
         failData.push(currentFail);
         labels.push(new Date().toLocaleTimeString([], { hour12: false }));
-        
+        successNames.push([...currentSuccessNames]);
+        failNames.push([...currentFailNames]);
+
         currentSuccess = 0;
         currentFail = 0;
-        
+        currentSuccessNames = [];
+        currentFailNames = [];
+
         liveChartInstance.update();
     }, 1000);
 }
@@ -438,7 +465,7 @@ async function refreshDashboardStats() {
             tbody.innerHTML = '';
             result.stats.monitors.forEach(m => {
                 const tr = document.createElement('tr');
-                
+
                 let badge = '';
                 if (!m.isActive) badge = '<span class="badge badge-paused">⏸ PAUSED</span>';
                 else if (m.currentStatus === 1) badge = '<span class="badge badge-up">✓ UP</span>';
@@ -457,12 +484,12 @@ async function refreshDashboardStats() {
                     timeStr = d.toLocaleTimeString([], { hour12: false });
                 }
 
-                let statusHtml = m.lastStatusCode 
-                    ? `<span style="font-family:monospace; color:${m.lastStatusCode < 400 ? 'var(--green)' : 'var(--red)'};">${m.lastStatusCode}</span>` 
+                let statusHtml = m.lastStatusCode
+                    ? `<span style="font-family:monospace; color:${m.lastStatusCode < 400 ? 'var(--green)' : 'var(--red)'};">${m.lastStatusCode}</span>`
                     : '<span style="color:var(--text-muted);">-</span>';
 
-                let respHtml = m.lastResponseTimeMs != null 
-                    ? `<span class="response-time ${m.lastResponseTimeMs < 500 ? 'fast' : (m.lastResponseTimeMs < 2000 ? 'medium' : 'slow')}">${m.lastResponseTimeMs} ms</span>` 
+                let respHtml = m.lastResponseTimeMs != null
+                    ? `<span class="response-time ${m.lastResponseTimeMs < 500 ? 'fast' : (m.lastResponseTimeMs < 2000 ? 'medium' : 'slow')}">${m.lastResponseTimeMs} ms</span>`
                     : '<span style="color:var(--text-muted);">-</span>';
 
                 let upColor = m.uptimePercent24h >= 99 ? 'var(--green)' : (m.uptimePercent24h >= 90 ? 'var(--yellow)' : 'var(--red)');
