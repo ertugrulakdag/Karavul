@@ -8,18 +8,24 @@ namespace Karavul.Host.Pages.ContactGroups;
 public class EditModel : PageModel
 {
     private readonly IContactGroupRepository _repo;
-    public EditModel(IContactGroupRepository repo) => _repo = repo;
+    private readonly IDirectoryContactRepository _directoryRepo;
+
+    public EditModel(IContactGroupRepository repo, IDirectoryContactRepository directoryRepo)
+    {
+        _repo = repo;
+        _directoryRepo = directoryRepo;
+    }
 
     [BindProperty] public string Id { get; set; } = string.Empty;
     [BindProperty] public string Name { get; set; } = string.Empty;
     [BindProperty] public int RepeatAlertMinutes { get; set; }
     [BindProperty] public bool IsActive { get; set; }
-    [BindProperty] public List<string> Emails { get; set; } = [];
-    [BindProperty] public List<string> Phones { get; set; } = [];
-    [BindProperty] public List<string> Telegrams { get; set; } = [];
+    [BindProperty] public List<ContactGroupMember> Members { get; set; } = [];
     [BindProperty] public List<Karavul.Core.Enums.NotificationType> SelectedNotificationTypes { get; set; } = [];
     public DateTime UpdatedAt { get; set; }
     public string? UpdatedBy { get; set; }
+
+    public List<DirectoryContact> DirectoryContacts { get; set; } = [];
 
     public async Task<IActionResult> OnGetAsync(string id)
     {
@@ -30,9 +36,7 @@ public class EditModel : PageModel
         Name = group.Name;
         RepeatAlertMinutes = group.RepeatAlertMinutes;
         IsActive = group.IsActive;
-        Emails = group.Emails.Select(e => e.Email).ToList();
-        Phones = group.Phones.Select(p => p.PhoneNumber).ToList();
-        Telegrams = group.Telegrams.Select(t => t.ChatId).ToList();
+        Members = group.Members.ToList();
         UpdatedAt = group.UpdatedAt;
         UpdatedBy = group.UpdatedBy;
 
@@ -40,6 +44,9 @@ public class EditModel : PageModel
         if (group.ActiveNotificationTypes.HasFlag(Karavul.Core.Enums.NotificationType.Email)) SelectedNotificationTypes.Add(Karavul.Core.Enums.NotificationType.Email);
         if (group.ActiveNotificationTypes.HasFlag(Karavul.Core.Enums.NotificationType.Sms)) SelectedNotificationTypes.Add(Karavul.Core.Enums.NotificationType.Sms);
         if (group.ActiveNotificationTypes.HasFlag(Karavul.Core.Enums.NotificationType.Telegram)) SelectedNotificationTypes.Add(Karavul.Core.Enums.NotificationType.Telegram);
+
+        var contacts = await _directoryRepo.GetAllAsync();
+        DirectoryContacts = contacts.Where(c => c.IsActive).ToList();
 
         return Page();
     }
@@ -49,6 +56,8 @@ public class EditModel : PageModel
         if (string.IsNullOrWhiteSpace(Name))
         {
             ModelState.AddModelError("", "Grup adı gereklidir.");
+            var contacts = await _directoryRepo.GetAllAsync();
+            DirectoryContacts = contacts.Where(c => c.IsActive).ToList();
             return Page();
         }
 
@@ -68,18 +77,7 @@ public class EditModel : PageModel
             IsActive = IsActive,
             ActiveNotificationTypes = activeTypes,
             UpdatedBy = username,
-            Emails = Emails
-                .Where(e => !string.IsNullOrWhiteSpace(e))
-                .Select(e => new ContactGroupEmail { Email = e.Trim() })
-                .ToList(),
-            Phones = Phones
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Select(p => new ContactGroupPhone { PhoneNumber = p.Trim() })
-                .ToList(),
-            Telegrams = Telegrams
-                .Where(t => !string.IsNullOrWhiteSpace(t))
-                .Select(t => new ContactGroupTelegram { ChatId = t.Trim() })
-                .ToList()
+            Members = Members.Where(m => !string.IsNullOrWhiteSpace(m.FirstName) || !string.IsNullOrWhiteSpace(m.Email) || !string.IsNullOrWhiteSpace(m.PhoneNumber) || !string.IsNullOrWhiteSpace(m.TelegramChatId)).ToList()
         };
 
         await _repo.UpdateAsync(group);

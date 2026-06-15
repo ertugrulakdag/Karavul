@@ -45,25 +45,22 @@
                         <tr>
                             <td class="monitor-name">@g.Name</td>
                             <td style="font-size:0.8rem; color:var(--text-secondary);">
-                                @if (g.Emails.Any())
-                                {
-                                    @string.Join(", ", g.Emails.Select(e => e.Email))
+                                @{
+                                    var emails = g.Members.Where(m => !string.IsNullOrEmpty(m.Email)).Select(m => m.Email).ToList();
+                                    if (emails.Any()) { @string.Format(Loc["adet"], emails.Count) } else { <span style="color:var(--text-muted);">-</span> }
                                 }
-                                else { <span style="color:var(--text-muted);">-</span> }
                             </td>
                             <td style="font-size:0.8rem; color:var(--text-secondary);">
-                                @if (g.Phones.Any())
-                                {
-                                    @string.Join(", ", g.Phones.Select(p => p.PhoneNumber))
+                                @{
+                                    var phones = g.Members.Where(m => !string.IsNullOrEmpty(m.PhoneNumber)).Select(m => m.PhoneNumber).ToList();
+                                    if (phones.Any()) { @string.Format(Loc["adet"], phones.Count) } else { <span style="color:var(--text-muted);">-</span> }
                                 }
-                                else { <span style="color:var(--text-muted);">-</span> }
                             </td>
                             <td style="font-size:0.8rem; color:var(--text-secondary);">
-                                @if (g.Telegrams.Any())
-                                {
-                                    @string.Join(", ", g.Telegrams.Select(t => t.ChatId))
+                                @{
+                                    var telegrams = g.Members.Where(m => !string.IsNullOrEmpty(m.TelegramChatId)).Select(m => m.TelegramChatId).ToList();
+                                    if (telegrams.Any()) { @string.Format(Loc["adet"], telegrams.Count) } else { <span style="color:var(--text-muted);">-</span> }
                                 }
-                                else { <span style="color:var(--text-muted);">-</span> }
                             </td>
                             <td>
                                 @(g.RepeatAlertMinutes == 0 ? Loc["tek-seferlik"] : string.Format(Loc["her-x-dakika"], g.RepeatAlertMinutes))
