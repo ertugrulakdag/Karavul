@@ -23,6 +23,46 @@ public class MonitorCheckService
         _logger = logger;
     }
 
+    /// <summary>
+    /// Engellenen URL şemaları – yalnızca http ve https izinlidir.
+    /// file://, ftp://, dict://, gopher:// vb. SSRF vektörlerini kapatır.
+    /// </summary>
+    private static readonly HashSet<string> AllowedSchemes =
+        new(StringComparer.OrdinalIgnoreCase) { "http", "https" };
+
+    /// <summary>
+    /// Kullanıcı tanımlı monitör URL'ini SSRF açısından doğrular.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Geçersiz URL veya engellenen hedef.</exception>
+    private static void ValidateMonitorUrl(string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            throw new InvalidOperationException($"Geçersiz URL formatı: {url}");
+
+        // Yalnızca http ve https şemalarına izin ver
+        if (!AllowedSchemes.Contains(uri.Scheme))
+            throw new InvalidOperationException(
+                $"İzin verilmeyen URL şeması '{uri.Scheme}'. Yalnızca http ve https desteklenir.");
+
+        // Hostname'i IP'ye çözümle ve tehlikeli aralıkları engelle
+        var host = uri.Host;
+        if (System.Net.IPAddress.TryParse(host, out var ip))
+        {
+            var bytes = ip.GetAddressBytes();
+
+            // 169.254.x.x – AWS/Azure/GCP bulut meta veri endpoint'i (IMDS)
+            if (bytes.Length == 4 && bytes[0] == 169 && bytes[1] == 254)
+                throw new InvalidOperationException(
+                    $"Engellenen IP aralığı (link-local/cloud metadata): {host}");
+        }
+
+        // Tehlikeli hostname'leri doğrudan engelle
+        if (host.Equals("metadata.google.internal", StringComparison.OrdinalIgnoreCase) ||
+            host.Equals("169.254.169.254", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException(
+                $"Engellenen bulut meta veri hedefi: {host}");
+    }
+
     public async Task<MonitorCheck> CheckHttpAsync(MonitorTarget monitor, HttpClient httpClient, CancellationToken ct)
     {
         var check = new MonitorCheck
@@ -30,6 +70,23 @@ public class MonitorCheckService
             MonitorId = monitor.Id,
             CheckedAt = DateTime.UtcNow
         };
+
+        // SSRF koruması: URL şeması ve hedef IP doğrulaması
+        try
+        {
+            ValidateMonitorUrl(monitor.Url);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("SSRF engellendi – Monitor: {Name}, URL: {Url}, Sebep: {Reason}",
+                monitor.Name, monitor.Url, ex.Message);
+
+            check.IsSuccess = false;
+            check.CheckResultType = CheckResultType.ConnectionError;
+            check.ErrorMessage = $"Güvenlik: {ex.Message}";
+            await _checkRepo.CreateAsync(check);
+            return check;
+        }
 
         var sw = System.Diagnostics.Stopwatch.StartNew();
 
