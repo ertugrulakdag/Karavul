@@ -236,6 +236,14 @@ try
 
     app.Map("/ws/realtime", async context =>
     {
+        // Kimlik doğrulama kontrolü – oturum açılmamışsa WebSocket bağlantısı reddedilir
+        if (context.Session.GetString("UserId") == null)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("Unauthorized");
+            return;
+        }
+
         if (context.WebSockets.IsWebSocketRequest)
         {
             var ws = await context.WebSockets.AcceptWebSocketAsync();
