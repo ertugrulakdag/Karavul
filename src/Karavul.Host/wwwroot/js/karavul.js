@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // AJAX refresh dashboard every 30 seconds
-    if (window.location.pathname === '/') {
+    if (window.location.pathname === '/' || window.location.pathname.toLowerCase() === '/index' || window.location.pathname === '') {
         setInterval(() => {
             refreshDashboardStats();
         }, 30000);
@@ -167,7 +167,8 @@ async function initChart(period = 'day') {
     try {
         const response = await fetch(`/?handler=ChartData&period=${period}`);
         if (!response.ok) return;
-        const result = await response.json();
+        const responseData = await response.json();
+        const result = responseData.data || responseData;
 
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const textColor = isDark ? '#cccccc' : '#495057';
@@ -183,8 +184,8 @@ async function initChart(period = 'day') {
             window.realtimeChartInstance.destroy();
         }
 
-        const totalFail = result.failData ? result.failData.reduce((a, b) => a + b, 0) : 0;
-        const totalSuccess = result.successData ? result.successData.reduce((a, b) => a + b, 0) : 0;
+        const totalFail = result.fail ? result.fail.reduce((a, b) => a + b, 0) : 0;
+        const totalSuccess = result.success ? result.success.reduce((a, b) => a + b, 0) : 0;
 
         window.realtimeChartInstance = new Chart(canvas.getContext('2d'), {
             type: 'line',
@@ -193,7 +194,7 @@ async function initChart(period = 'day') {
                 datasets: [
                     {
                         label: `Başarısız (${totalFail})`,
-                        data: result.failData,
+                        data: result.fail,
                         borderColor: failColor,
                         backgroundColor: failAlpha,
                         borderWidth: 2,
@@ -204,7 +205,7 @@ async function initChart(period = 'day') {
                     },
                     {
                         label: `Başarılı (${totalSuccess})`,
-                        data: result.successData,
+                        data: result.success,
                         borderColor: successColor,
                         backgroundColor: successAlpha,
                         borderWidth: 2,
@@ -312,8 +313,8 @@ function initLiveChart() {
         d.setSeconds(d.getSeconds() - (MAX_POINTS - i));
         labels[i] = d.toLocaleTimeString([], { hour12: false });
     }
-    const successData = Array(MAX_POINTS).fill(0);
-    const failData = Array(MAX_POINTS).fill(0);
+    const success = Array(MAX_POINTS).fill(0);
+    const fail = Array(MAX_POINTS).fill(0);
     const successNames = Array.from({ length: MAX_POINTS }, () => []);
     const failNames = Array.from({ length: MAX_POINTS }, () => []);
 
@@ -329,7 +330,7 @@ function initLiveChart() {
             datasets: [
                 {
                     label: 'Başarısız',
-                    data: failData,
+                    data: fail,
                     borderColor: failColor,
                     backgroundColor: failFill,
                     borderWidth: 1,
@@ -340,7 +341,7 @@ function initLiveChart() {
                 },
                 {
                     label: 'Başarılı',
-                    data: successData,
+                    data: success,
                     borderColor: successColor,
                     backgroundColor: successFill,
                     borderWidth: 1,
@@ -416,14 +417,14 @@ function initLiveChart() {
     };
 
     setInterval(() => {
-        successData.shift();
-        failData.shift();
+        success.shift();
+        fail.shift();
         labels.shift();
         successNames.shift();
         failNames.shift();
 
-        successData.push(currentSuccess);
-        failData.push(currentFail);
+        success.push(currentSuccess);
+        fail.push(currentFail);
         labels.push(new Date().toLocaleTimeString([], { hour12: false }));
         successNames.push([...currentSuccessNames]);
         failNames.push([...currentFailNames]);
@@ -453,10 +454,19 @@ async function refreshDashboardStats() {
 
         // Update History Chart
         if (window.realtimeChartInstance && result.chartData) {
-            window.realtimeChartInstance.data.labels = result.chartData.labels;
-            window.realtimeChartInstance.data.datasets[0].data = result.chartData.failData;
-            window.realtimeChartInstance.data.datasets[1].data = result.chartData.successData;
-            window.realtimeChartInstance.update('none');
+            const hg = result.chartData.data || result.chartData;
+            if (hg && hg.labels) {
+                window.realtimeChartInstance.data.labels = hg.labels;
+                window.realtimeChartInstance.data.datasets[0].data = hg.fail;
+                window.realtimeChartInstance.data.datasets[1].data = hg.success;
+
+                const totalFail = hg.fail ? hg.fail.reduce((a, b) => a + b, 0) : 0;
+                const totalSuccess = hg.success ? hg.success.reduce((a, b) => a + b, 0) : 0;
+                window.realtimeChartInstance.data.datasets[0].label = `Başarısız (${totalFail})`;
+                window.realtimeChartInstance.data.datasets[1].label = `Başarılı (${totalSuccess})`;
+
+                window.realtimeChartInstance.update();
+            }
         }
 
         // Update Table

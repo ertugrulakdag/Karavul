@@ -115,8 +115,8 @@ public class IndexModel : PageModel
         var historyDict = history.ToDictionary(h => (string)h.TimeGroup, h => h);
         
         var labels = new List<string>();
-        var successData = new List<int>();
-        var failData = new List<int>();
+        var success = new List<int>();
+        var fail = new List<int>();
         
         for (int i = 0; i < buckets; i++)
         {
@@ -136,17 +136,17 @@ public class IndexModel : PageModel
 
             if (historyDict.TryGetValue(key, out var h))
             {
-                successData.Add(Convert.ToInt32(h.SuccessCount ?? 0));
-                failData.Add(Convert.ToInt32(h.FailCount ?? 0));
+                success.Add(Convert.ToInt32(h.SuccessCount ?? 0));
+                fail.Add(Convert.ToInt32(h.FailCount ?? 0));
             }
             else
             {
-                successData.Add(0);
-                failData.Add(0);
+                success.Add(0);
+                fail.Add(0);
             }
         }
 
-        return new JsonResult(new { labels, successData, failData });
+        return new JsonResult(new { data = new { labels, success, fail } });
     }
 
     public async Task<IActionResult> OnGetStatsAsync(string period = "day", int limit = 10)
