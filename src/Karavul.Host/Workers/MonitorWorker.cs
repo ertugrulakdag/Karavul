@@ -2,7 +2,6 @@ using Karavul.Core.Entities;
 using Karavul.Core.Interfaces;
 using Karavul.Host.Configuration;
 using Karavul.Services;
-using Microsoft.Extensions.Options;
 
 namespace Karavul.Host.Workers;
 
@@ -77,13 +76,17 @@ public class MonitorWorker : BackgroundService
         }
 
         if (tasks.Any())
+        {
             await Task.WhenAll(tasks);
+        }
     }
 
     private bool ShouldCheck(MonitorTarget monitor, DateTime now)
     {
         if (!_lastCheckTimes.TryGetValue(monitor.Id, out var lastCheck))
+        {
             return true;
+        }
             
         int intervalSeconds = monitor.CheckIntervalSeconds;
         if (monitor.IsInTriggerProcess)

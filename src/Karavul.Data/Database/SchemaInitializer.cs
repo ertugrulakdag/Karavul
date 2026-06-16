@@ -85,6 +85,33 @@ public class SchemaInitializer
                 FOREIGN KEY (ContactGroupId) REFERENCES ContactGroups(Id) ON DELETE CASCADE
             );
 
+            CREATE TABLE IF NOT EXISTS DirectoryContacts (
+                Id TEXT PRIMARY KEY,
+                FirstName TEXT NOT NULL,
+                LastName TEXT NOT NULL,
+                Email TEXT NOT NULL,
+                PhoneNumber TEXT NOT NULL,
+                TelegramChatId TEXT NOT NULL,
+                IsActive INTEGER NOT NULL DEFAULT 1,
+                CreatedAt TEXT NOT NULL,
+                CreatedBy TEXT,
+                UpdatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UpdatedBy TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS ContactGroupMembers (
+                Id TEXT PRIMARY KEY,
+                ContactGroupId TEXT NOT NULL,
+                DirectoryContactId TEXT,
+                FirstName TEXT NOT NULL,
+                LastName TEXT NOT NULL,
+                Email TEXT NOT NULL,
+                PhoneNumber TEXT NOT NULL,
+                TelegramChatId TEXT NOT NULL,
+                FOREIGN KEY (ContactGroupId) REFERENCES ContactGroups(Id) ON DELETE CASCADE,
+                FOREIGN KEY (DirectoryContactId) REFERENCES DirectoryContacts(Id) ON DELETE SET NULL
+            );
+
             CREATE TABLE IF NOT EXISTS Monitors (
                 Id TEXT PRIMARY KEY,
                 Name TEXT NOT NULL,
@@ -270,5 +297,45 @@ public class SchemaInitializer
             await conn.ExecuteAsync("CREATE UNIQUE INDEX IF NOT EXISTS IX_Incidents_Code ON Incidents (Code) WHERE Code != '';");
         } 
         catch (SqliteException ex) when (ex.Message.Contains("duplicate column name")) { }
+
+        // Migration from old emails, phones, telegrams to members
+        await MigrateContactGroupMembersAsync(conn);
+    }
+
+    private static async Task MigrateContactGroupMembersAsync(SqliteConnection conn)
+    {
+        var membersExist = await conn.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM ContactGroupMembers");
+        if (membersExist > 0) return;
+
+        var groups = await conn.QueryAsync<string>("SELECT Id FROM ContactGroups");
+        foreach (var groupId in groups)
+        {
+            var emails = await conn.QueryAsync<string>("SELECT Email FROM ContactGroupEmails WHERE ContactGroupId = @Id", new { Id = groupId });
+            var phones = await conn.QueryAsync<string>("SELECT PhoneNumber FROM ContactGroupPhones WHERE ContactGroupId = @Id", new { Id = groupId });
+            var telegrams = await conn.QueryAsync<string>("SELECT ChatId FROM ContactGroupTelegrams WHERE ContactGroupId = @Id", new { Id = groupId });
+
+            int i = 1;
+            foreach (var email in emails)
+            {
+                await conn.ExecuteAsync(
+                    "INSERT INTO ContactGroupMembers (Id, ContactGroupId, FirstName, LastName, Email, PhoneNumber, TelegramChatId) VALUES (@Id, @ContactGroupId, @FirstName, @LastName, @Email, @PhoneNumber, @TelegramChatId)",
+                    new { Id = Guid.NewGuid().ToString(), ContactGroupId = groupId, FirstName = $"Üye {i++} (E-posta)", LastName = "", Email = email, PhoneNumber = "", TelegramChatId = "" }
+                );
+            }
+            foreach (var phone in phones)
+            {
+                await conn.ExecuteAsync(
+                    "INSERT INTO ContactGroupMembers (Id, ContactGroupId, FirstName, LastName, Email, PhoneNumber, TelegramChatId) VALUES (@Id, @ContactGroupId, @FirstName, @LastName, @Email, @PhoneNumber, @TelegramChatId)",
+                    new { Id = Guid.NewGuid().ToString(), ContactGroupId = groupId, FirstName = $"Üye {i++} (Telefon)", LastName = "", Email = "", PhoneNumber = phone, TelegramChatId = "" }
+                );
+            }
+            foreach (var telegram in telegrams)
+            {
+                await conn.ExecuteAsync(
+                    "INSERT INTO ContactGroupMembers (Id, ContactGroupId, FirstName, LastName, Email, PhoneNumber, TelegramChatId) VALUES (@Id, @ContactGroupId, @FirstName, @LastName, @Email, @PhoneNumber, @TelegramChatId)",
+                    new { Id = Guid.NewGuid().ToString(), ContactGroupId = groupId, FirstName = $"Üye {i++} (Telegram)", LastName = "", Email = "", PhoneNumber = "", TelegramChatId = telegram }
+                );
+            }
+        }
     }
 }

@@ -1,0 +1,60 @@
+@page
+@model Karavul.Host.Pages.Directory.CreateModel
+@inject Karavul.Host.Localization.ILocalizationService Loc
+@{
+    ViewData["Title"] = Loc["yeni-kisi-ekle"];
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Loc["yeni-kisi-ekle"]</h1>
+        <p class="page-subtitle">@Loc["yeni-kisi-ekle-aciklama"]</p>
+    </div>
+    <a href="/Directory" class="btn btn-secondary">← @Loc["geri"]</a>
+</div>
+
+<div class="card" style="max-width:600px;">
+    <form method="post">
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">@Loc["isim"] *</label>
+                <input name="Contact.FirstName" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label">@Loc["soyisim"] *</label>
+                <input name="Contact.LastName" class="form-control" required />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">@Loc["e-posta"]</label>
+            <input type="email" name="Contact.Email" class="form-control" placeholder="ornek@sirket.com" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">@Loc["telefon"]</label>
+            <input type="tel" name="Contact.PhoneNumber" class="form-control" placeholder="+90 5XX XXX XX XX" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">@Loc["telegram-chat-id"]</label>
+            <input type="text" name="Contact.TelegramChatId" class="form-control" placeholder="-100000000000" />
+            <small style="color:var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">@Loc["telegram-bot-ile-ogrenebilirsiniz"]</small>
+        </div>
+
+        <div class="form-group" style="margin-top:20px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <label class="toggle-switch">
+                    <input name="Contact.IsActive" type="checkbox" value="true" checked />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="form-label" style="margin:0;">@Loc["aktif"]</span>
+            </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:24px;">
+            <button type="submit" class="btn btn-primary">@Loc["kaydet"]</button>
+            <a href="/Directory" class="btn btn-secondary">@Loc["iptal"]</a>
+        </div>
+    </form>
+</div>

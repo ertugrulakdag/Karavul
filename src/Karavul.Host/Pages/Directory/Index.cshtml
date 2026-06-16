@@ -1,0 +1,80 @@
+@page
+@model Karavul.Host.Pages.Directory.IndexModel
+@inject Karavul.Host.Localization.ILocalizationService Loc
+@{
+    ViewData["Title"] = Loc["rehber"];
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Loc["rehber"]</h1>
+        <p class="page-subtitle">@Loc["rehber-aciklama"]</p>
+    </div>
+    <a href="/Directory/Create" class="btn btn-primary">+ @Loc["yeni-kisi-ekle"]</a>
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+    @if (Model.Contacts.Any())
+    {
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>@Loc["isim-soyisim"]</th>
+                        <th>@Loc["e-posta"]</th>
+                        <th>@Loc["telefon"]</th>
+                        <th>@Loc["telegram-chat-id"]</th>
+                        <th>@Loc["durum"]</th>
+                        <th style="width:100px;text-align:right;">@Loc["islemler"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contact in Model.Contacts)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@contact.FirstName @contact.LastName</strong>
+                            </td>
+                            <td>@(string.IsNullOrEmpty(contact.Email) ? "-" : contact.Email)</td>
+                            <td>@(string.IsNullOrEmpty(contact.PhoneNumber) ? "-" : contact.PhoneNumber)</td>
+                            <td>@(string.IsNullOrEmpty(contact.TelegramChatId) ? "-" : contact.TelegramChatId)</td>
+                            <td>
+                                @if (contact.IsActive)
+                                {
+                                    <span class="status-badge status-up">@Loc["aktif"]</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-down">@Loc["pasif"]</span>
+                                }
+                            </td>
+                            <td style="text-align:right;">
+                                <div style="display:flex; gap:8px; justify-content:flex-end;">
+                                    <a href="/Directory/Edit?id=@contact.Id" class="btn btn-secondary btn-sm">@Loc["duzenle"]</a>
+                                    <form method="post" asp-page-handler="Delete" style="display:inline;" onsubmit="return confirm('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(Loc["kisi-silme-onayi"]))');">
+                                        <input type="hidden" name="id" value="@contact.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm">@Loc["sil"]</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color:var(--text-muted); margin-bottom:16px;">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <h3>@Loc["henuz-kisi-eklenmemis"]</h3>
+            <p style="color:var(--text-muted); margin-bottom:24px;">@Loc["rehber-bos-aciklama"]</p>
+            <a href="/Directory/Create" class="btn btn-primary">@Loc["ilk-kisiyi-ekle"]</a>
+        </div>
+    }
+</div>

@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAppSettingRepository, AppSettingRepository>();
         services.AddScoped<ISslCheckRepository, SslCheckRepository>();
+        services.AddScoped<IDirectoryContactRepository, DirectoryContactRepository>();
 
         // Services
         services.AddScoped<AuthService>();

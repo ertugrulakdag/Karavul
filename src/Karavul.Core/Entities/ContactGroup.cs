@@ -14,7 +14,5 @@ public class ContactGroup
     public string? UpdatedBy { get; set; }
     public NotificationType ActiveNotificationTypes { get; set; } = NotificationType.Email | NotificationType.Sms | NotificationType.Telegram;
 
-    public List<ContactGroupEmail> Emails { get; set; } = [];
-    public List<ContactGroupPhone> Phones { get; set; } = [];
-    public List<ContactGroupTelegram> Telegrams { get; set; } = [];
+    public List<ContactGroupMember> Members { get; set; } = [];
 }

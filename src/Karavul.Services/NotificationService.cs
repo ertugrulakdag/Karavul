@@ -81,29 +81,29 @@ public class NotificationService
 
         if (group.ActiveNotificationTypes.HasFlag(NotificationType.Email))
         {
-            foreach (var email in group.Emails)
+            foreach (var member in group.Members.Where(m => !string.IsNullOrWhiteSpace(m.Email)))
             {
                 await SendNotificationAsync(incident, monitor, group,
-                    NotificationType.Email, email.Email, subject, message, ct);
+                    NotificationType.Email, member.Email, subject, message, ct);
             }
         }
 
         if (group.ActiveNotificationTypes.HasFlag(NotificationType.Sms))
         {
-            foreach (var phone in group.Phones)
+            foreach (var member in group.Members.Where(m => !string.IsNullOrWhiteSpace(m.PhoneNumber)))
             {
                 var smsMessage = $"KARAVUL: {monitor.Name} DOWN - {incident.Reason}";
                 await SendNotificationAsync(incident, monitor, group,
-                    NotificationType.Sms, phone.PhoneNumber, subject, smsMessage, ct);
+                    NotificationType.Sms, member.PhoneNumber, subject, smsMessage, ct);
             }
         }
 
         if (group.ActiveNotificationTypes.HasFlag(NotificationType.Telegram))
         {
-            foreach (var telegram in group.Telegrams)
+            foreach (var member in group.Members.Where(m => !string.IsNullOrWhiteSpace(m.TelegramChatId)))
             {
                 await SendNotificationAsync(incident, monitor, group,
-                    NotificationType.Telegram, telegram.ChatId, subject, message, ct);
+                    NotificationType.Telegram, member.TelegramChatId, subject, message, ct);
             }
         }
 
@@ -151,24 +151,24 @@ public class NotificationService
 
         if (group.ActiveNotificationTypes.HasFlag(NotificationType.Email))
         {
-            foreach (var email in group.Emails)
+            foreach (var member in group.Members.Where(m => !string.IsNullOrWhiteSpace(m.Email)))
                 await SendNotificationAsync(incident, monitor, group,
-                    NotificationType.Email, email.Email, subject, message, ct);
+                    NotificationType.Email, member.Email, subject, message, ct);
         }
 
         if (group.ActiveNotificationTypes.HasFlag(NotificationType.Sms))
         {
-            foreach (var phone in group.Phones)
+            foreach (var member in group.Members.Where(m => !string.IsNullOrWhiteSpace(m.PhoneNumber)))
                 await SendNotificationAsync(incident, monitor, group,
-                    NotificationType.Sms, phone.PhoneNumber, subject, message, ct);
+                    NotificationType.Sms, member.PhoneNumber, subject, message, ct);
         }
 
         if (group.ActiveNotificationTypes.HasFlag(NotificationType.Telegram))
         {
-            foreach (var telegram in group.Telegrams)
+            foreach (var member in group.Members.Where(m => !string.IsNullOrWhiteSpace(m.TelegramChatId)))
             {
                 await SendNotificationAsync(incident, monitor, group,
-                    NotificationType.Telegram, telegram.ChatId, subject, message, ct);
+                    NotificationType.Telegram, member.TelegramChatId, subject, message, ct);
             }
         }
     }
