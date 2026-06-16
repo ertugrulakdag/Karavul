@@ -71,6 +71,7 @@ try
         options.IdleTimeout = TimeSpan.FromHours(8);
         options.Cookie.HttpOnly = true;
         options.Cookie.IsEssential = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
         options.Cookie.Name = builder.Environment.IsDevelopment() ? ".Karavul.Session.Dev" : ".Karavul.Session";
     });
 

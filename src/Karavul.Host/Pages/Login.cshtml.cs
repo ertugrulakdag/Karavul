@@ -63,7 +63,8 @@ public class LoginModel : PageModel
             {
                 Expires = DateTimeOffset.UtcNow.AddDays(30),
                 HttpOnly = true,
-                IsEssential = true
+                IsEssential = true,
+                SameSite = SameSiteMode.Strict
             });
         }
         else
