@@ -102,6 +102,30 @@ public class MonitorCheckService
             check.ResponseTimeMs = sw.ElapsedMilliseconds;
             check.StatusCode = (int)response.StatusCode;
 
+            // Extract headers
+            foreach (var header in response.Headers)
+            {
+                check.Headers.Add(new MonitorCheckHeader
+                {
+                    MonitorCheckId = check.Id,
+                    Name = header.Key,
+                    Value = string.Join(", ", header.Value)
+                });
+            }
+            if (response.Content != null)
+            {
+                foreach (var header in response.Content.Headers)
+                {
+                    check.Headers.Add(new MonitorCheckHeader
+                    {
+                        MonitorCheckId = check.Id,
+                        Name = header.Key,
+                        Value = string.Join(", ", header.Value)
+                    });
+                }
+            }
+
+
             if ((int)response.StatusCode == monitor.ExpectedStatusCode)
             {
                 if (monitor.MaxResponseTimeMs > 0 && check.ResponseTimeMs > monitor.MaxResponseTimeMs)

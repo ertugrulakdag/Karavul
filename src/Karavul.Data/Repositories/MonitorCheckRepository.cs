@@ -25,18 +25,47 @@ public class MonitorCheckRepository : IMonitorCheckRepository
             """;
 
         using var conn = _factory.CreateConnection();
-        await conn.ExecuteAsync(sql, new
+        await conn.OpenAsync();
+        using var transaction = conn.BeginTransaction();
+
+        try
         {
-            check.Id,
-            check.MonitorId,
-            CheckedAt = check.CheckedAt.ToString("o"),
-            IsSuccess = check.IsSuccess ? 1 : 0,
-            check.StatusCode,
-            check.ResponseTimeMs,
-            check.ErrorMessage,
-            CheckResultType = (int)check.CheckResultType,
-            check.HealthJson
-        });
+            await conn.ExecuteAsync(sql, new
+            {
+                check.Id,
+                check.MonitorId,
+                CheckedAt = check.CheckedAt.ToString("o"),
+                IsSuccess = check.IsSuccess ? 1 : 0,
+                check.StatusCode,
+                check.ResponseTimeMs,
+                check.ErrorMessage,
+                CheckResultType = (int)check.CheckResultType,
+                check.HealthJson
+            }, transaction);
+
+            if (check.Headers != null && check.Headers.Any())
+            {
+                const string headerSql = """
+                    INSERT INTO MonitorCheckHeaders (Id, MonitorCheckId, Name, Value)
+                    VALUES (@Id, @MonitorCheckId, @Name, @Value)
+                    """;
+                await conn.ExecuteAsync(headerSql, check.Headers.Select(h => new
+                {
+                    h.Id,
+                    h.MonitorCheckId,
+                    h.Name,
+                    h.Value
+                }), transaction);
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+
         return check.Id;
     }
 
@@ -61,7 +90,22 @@ public class MonitorCheckRepository : IMonitorCheckRepository
             "SELECT * FROM MonitorChecks WHERE MonitorId = @MonitorId ORDER BY CheckedAt DESC LIMIT @Limit OFFSET @Offset",
             new { MonitorId = monitorId, Limit = pageSize, Offset = (page - 1) * pageSize });
 
-        return (results.Select(MapCheck), totalCount);
+        var checks = results.Select(MapCheck).ToList();
+        
+        if (checks.Any())
+        {
+            var checkIds = checks.Select(c => c.Id).ToArray();
+            var headers = await conn.QueryAsync<MonitorCheckHeader>(
+                "SELECT * FROM MonitorCheckHeaders WHERE MonitorCheckId IN @Ids",
+                new { Ids = checkIds });
+            var headersLookup = headers.ToLookup(h => h.MonitorCheckId);
+            foreach (var c in checks)
+            {
+                c.Headers = headersLookup[c.Id].ToList();
+            }
+        }
+
+        return (checks, totalCount);
     }
 
     public async Task<IEnumerable<MonitorCheck>> GetRecentAsync(string monitorId, DateTime since)

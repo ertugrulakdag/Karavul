@@ -108,7 +108,8 @@ public class DetailModel : PageModel
                 ResponseTimeMs = c.ResponseTimeMs,
                 ErrorMessage = c.ErrorMessage,
                 CheckResultType = c.CheckResultType,
-                HealthJson = c.HealthJson
+                HealthJson = c.HealthJson,
+                Headers = c.Headers.Select(h => new KeyValuePair<string, string>(h.Name, h.Value)).ToList()
             }).ToList(),
             RecentIncidents = incidents.Take(20).Select(i => new IncidentHistoryDto
             {

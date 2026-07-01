@@ -157,6 +157,15 @@ public class SchemaInitializer
                 FOREIGN KEY (MonitorId) REFERENCES Monitors(Id) ON DELETE CASCADE
             );
 
+            CREATE TABLE IF NOT EXISTS MonitorCheckHeaders (
+                Id TEXT PRIMARY KEY,
+                MonitorCheckId TEXT NOT NULL,
+                Name TEXT NOT NULL,
+                Value TEXT NOT NULL,
+                FOREIGN KEY (MonitorCheckId) REFERENCES MonitorChecks(Id) ON DELETE CASCADE
+            );
+
+
             CREATE TABLE IF NOT EXISTS Incidents (
                 Id TEXT PRIMARY KEY,
                 MonitorId TEXT NOT NULL,
@@ -214,6 +223,10 @@ public class SchemaInitializer
         var sql = """
             CREATE INDEX IF NOT EXISTS IX_MonitorChecks_MonitorId_CheckedAt 
                 ON MonitorChecks (MonitorId, CheckedAt DESC);
+
+            CREATE INDEX IF NOT EXISTS IX_MonitorCheckHeaders_MonitorCheckId 
+                ON MonitorCheckHeaders (MonitorCheckId);
+
 
             CREATE INDEX IF NOT EXISTS IX_Incidents_MonitorId_Status 
                 ON Incidents (MonitorId, Status);

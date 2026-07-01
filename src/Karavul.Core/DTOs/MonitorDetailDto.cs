@@ -34,6 +34,7 @@ public class CheckHistoryDto
     public string? ErrorMessage { get; set; }
     public CheckResultType CheckResultType { get; set; }
     public string? HealthJson { get; set; }
+    public List<KeyValuePair<string, string>> Headers { get; set; } = [];
 }
 
 public class IncidentHistoryDto

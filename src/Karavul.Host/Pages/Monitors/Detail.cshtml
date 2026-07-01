@@ -1,6 +1,7 @@
 @page
 @model Karavul.Host.Pages.Monitors.DetailModel
 @using Karavul.Core.Enums
+@inject Karavul.Host.Localization.ILocalizationService Localizer
 @{
     ViewData["Title"] = Model.Monitor?.Name ?? "Monitör Detayı";
 }
@@ -75,6 +76,7 @@
                             <th>HTTP</th>
                             <th>Yanıt</th>
                             <th>Detay</th>
+                            <th>@Localizer["basliklar"]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -100,6 +102,13 @@
                                     {
                                         <button class="badge badge-info" style="cursor:pointer; border:none; margin-left:4px;" onclick="showHealthJson('@c.Id')">JSON Detay</button>
                                         <div id="json-@c.Id" style="display:none;">@c.HealthJson</div>
+                                    }
+                                </td>
+                                <td style="font-size:0.75rem;color:var(--text-muted);">
+                                    @if (c.Headers != null && c.Headers.Any())
+                                    {
+                                        <button class="badge badge-info" style="cursor:pointer; border:none; margin-left:4px;" onclick="showHeadersModal('@c.Id')">@Localizer["basliklar"]</button>
+                                        <div id="headers-@c.Id" style="display:none;">@System.Text.Json.JsonSerializer.Serialize(c.Headers)</div>
                                     }
                                 </td>
                             </tr>
@@ -204,7 +213,44 @@
     </div>
 </dialog>
 
+<!-- Modal for Headers JSON -->
+<dialog id="headersModal" style="border:none; border-radius:12px; padding:0; box-shadow:0 20px 40px rgba(0,0,0,0.3); max-width:800px; width:100%; margin:auto; background:var(--bg-surface); color:var(--text-primary); overflow:hidden;">
+    <div style="background:var(--bg-panel); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
+        <h2 class="card-title" style="margin:0; font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" style="color:var(--accent);"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            @Localizer["baslik-detaylari"]
+        </h2>
+        <button onclick="document.getElementById('headersModal').close()" style="background:none;border:none;cursor:pointer;font-size:1.5rem;line-height:1;color:var(--text-muted); transition:color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+    </div>
+    <div style="padding:24px;">
+        <div id="headersModalContent" style="font-size:0.85rem; max-height:500px; overflow-y:auto; background:var(--bg-body); border-radius:8px; border:1px solid var(--border); padding:16px;"></div>
+    </div>
+</dialog>
+
 <script>
+    function showHeadersModal(id) {
+        var jsonStr = document.getElementById('headers-' + id).innerText;
+        var contentDiv = document.getElementById('headersModalContent');
+        try {
+            var data = JSON.parse(jsonStr);
+            var html = '<table style="width:100%; border-collapse:collapse; text-align:left; word-break:break-all;">';
+            html += '<tr style="border-bottom:1px solid var(--border);"><th>Name</th><th>Value</th></tr>';
+            
+            data.forEach(function(item) {
+                html += '<tr style="border-bottom:1px solid var(--border);">';
+                html += '<td style="padding:8px; font-weight:500; border-right:1px solid var(--border); vertical-align:top; width:30%;">' + item.Key + '</td>';
+                html += '<td style="padding:8px; color:var(--text-muted); vertical-align:top;">' + item.Value + '</td>';
+                html += '</tr>';
+            });
+            html += '</table>';
+            
+            contentDiv.innerHTML = html;
+        } catch(e) {
+            contentDiv.innerHTML = '<pre style="white-space:pre-wrap; background:var(--bg-panel); padding:12px; border-radius:6px; font-family:monospace;">' + jsonStr + '</pre>';
+        }
+        document.getElementById('headersModal').showModal();
+    }
+
     function showHealthJson(id) {
         var jsonStr = document.getElementById('json-' + id).innerText;
         var contentDiv = document.getElementById('healthModalContent');

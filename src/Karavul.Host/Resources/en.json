@@ -210,5 +210,7 @@
   "yeni-kisi-ekle-aciklama": "Add a new contact to the directory.",
   "kisi-duzenle": "Edit Contact",
   "kisi-duzenle-aciklama": "You are updating a directory record.",
-  "telegram-bot-ile-ogrenebilirsiniz": "You can find out by chatting with the Karavul bot."
+  "telegram-bot-ile-ogrenebilirsiniz": "You can find out by chatting with the Karavul bot.",
+  "basliklar": "Headers",
+  "baslik-detaylari": "Header Details"
 }

@@ -13,4 +13,5 @@ public class MonitorCheck
     public string? ErrorMessage { get; set; }
     public CheckResultType CheckResultType { get; set; }
     public string? HealthJson { get; set; }
+    public List<MonitorCheckHeader> Headers { get; set; } = new();
 }
