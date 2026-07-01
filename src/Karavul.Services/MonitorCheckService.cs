@@ -229,8 +229,9 @@ public class MonitorCheckService
                 }
             };
 
-            using var httpClient = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(15) };
-            using var response = await httpClient.GetAsync(uri.GetLeftPart(UriPartial.Authority), ct);
+            using var httpClient = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(monitor.TimeoutSeconds > 0 ? monitor.TimeoutSeconds : 30) };
+            using var request = new HttpRequestMessage(new HttpMethod(monitor.HttpMethod ?? "GET"), monitor.Url);
+            using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
         }
         catch (Exception ex)
         {
