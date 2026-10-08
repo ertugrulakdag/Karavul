@@ -196,9 +196,9 @@
             const rowId = `member-row-${memberIndex}`;
             
             let contactInfo = [];
-            if (member.email) contactInfo.push(`<span title="E-posta" style="background:var(--bg-body); padding:2px 6px; border-radius:4px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>${member.email}</span>`);
-            if (member.phone) contactInfo.push(`<span title="Telefon" style="background:var(--bg-body); padding:2px 6px; border-radius:4px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>${member.phone}</span>`);
-            if (member.telegram) contactInfo.push(`<span title="Telegram" style="background:var(--bg-body); padding:2px 6px; border-radius:4px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>${member.telegram}</span>`);
+            if (member.email) contactInfo.push(`<span title="E-posta" style="background:var(--bg-body); padding:2px 6px; border-radius:4px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>${escapeHtml(member.email)}</span>`);
+            if (member.phone) contactInfo.push(`<span title="Telefon" style="background:var(--bg-body); padding:2px 6px; border-radius:4px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>${escapeHtml(member.phone)}</span>`);
+            if (member.telegram) contactInfo.push(`<span title="Telegram" style="background:var(--bg-body); padding:2px 6px; border-radius:4px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>${escapeHtml(member.telegram)}</span>`);
 
             const isManual = !member.directoryId;
 
@@ -207,7 +207,7 @@
             tr.innerHTML = `
                 <td>
                     <div style="display:flex; flex-direction:column; gap:4px;">
-                        <strong>${member.firstName} ${member.lastName}</strong>
+                        <strong>${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)}</strong>
                         ${isManual ? '<span style="font-size:0.7rem; color:var(--text-muted);">(' + locManual + ')</span>' : '<span style="font-size:0.7rem; color:var(--text-muted);">(' + locDirectory + ')</span>'}
                     </div>
                 </td>
@@ -226,12 +226,12 @@
             const container = document.getElementById('hiddenMembersContainer');
             const html = `
                 <div id="hidden-member-${memberIndex}">
-                    <input type="hidden" name="Members[${memberIndex}].DirectoryContactId" value="${member.directoryId || ''}" />
-                    <input type="hidden" name="Members[${memberIndex}].FirstName" value="${member.firstName || ''}" />
-                    <input type="hidden" name="Members[${memberIndex}].LastName" value="${member.lastName || ''}" />
-                    <input type="hidden" name="Members[${memberIndex}].Email" value="${member.email || ''}" />
-                    <input type="hidden" name="Members[${memberIndex}].PhoneNumber" value="${member.phone || ''}" />
-                    <input type="hidden" name="Members[${memberIndex}].TelegramChatId" value="${member.telegram || ''}" />
+                    <input type="hidden" name="Members[${memberIndex}].DirectoryContactId" value="${escapeAttr(member.directoryId)}" />
+                    <input type="hidden" name="Members[${memberIndex}].FirstName" value="${escapeAttr(member.firstName)}" />
+                    <input type="hidden" name="Members[${memberIndex}].LastName" value="${escapeAttr(member.lastName)}" />
+                    <input type="hidden" name="Members[${memberIndex}].Email" value="${escapeAttr(member.email)}" />
+                    <input type="hidden" name="Members[${memberIndex}].PhoneNumber" value="${escapeAttr(member.phone)}" />
+                    <input type="hidden" name="Members[${memberIndex}].TelegramChatId" value="${escapeAttr(member.telegram)}" />
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);

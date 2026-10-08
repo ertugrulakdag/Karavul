@@ -238,15 +238,15 @@
             
             data.forEach(function(item) {
                 html += '<tr style="border-bottom:1px solid var(--border);">';
-                html += '<td style="padding:8px; font-weight:500; border-right:1px solid var(--border); vertical-align:top; width:30%;">' + item.Key + '</td>';
-                html += '<td style="padding:8px; color:var(--text-muted); vertical-align:top;">' + item.Value + '</td>';
+                html += '<td style="padding:8px; font-weight:500; border-right:1px solid var(--border); vertical-align:top; width:30%;">' + escapeHtml(item.Key) + '</td>';
+                html += '<td style="padding:8px; color:var(--text-muted); vertical-align:top;">' + escapeHtml(item.Value) + '</td>';
                 html += '</tr>';
             });
             html += '</table>';
             
             contentDiv.innerHTML = html;
         } catch(e) {
-            contentDiv.innerHTML = '<pre style="white-space:pre-wrap; background:var(--bg-panel); padding:12px; border-radius:6px; font-family:monospace;">' + jsonStr + '</pre>';
+            contentDiv.innerHTML = '<pre style="white-space:pre-wrap; background:var(--bg-panel); padding:12px; border-radius:6px; font-family:monospace;">' + escapeHtml(jsonStr) + '</pre>';
         }
         document.getElementById('headersModal').showModal();
     }
@@ -264,23 +264,23 @@
                     var entry = data.entries[key];
                     var statusColor = entry.status === 'Healthy' ? 'var(--green)' : (entry.status === 'Degraded' ? 'var(--yellow)' : 'var(--red)');
                     html += '<tr style="border-bottom:1px solid #f1f5f9;">';
-                    html += '<td style="padding:8px 0; font-weight:500;">' + key + '</td>';
-                    html += '<td style="padding:8px 0; color:' + statusColor + '; font-weight:bold;">' + entry.status + '</td>';
-                    html += '<td style="padding:8px 0; color:var(--text-muted);">' + (entry.duration || '-') + '</td>';
+                    html += '<td style="padding:8px 0; font-weight:500;">' + escapeHtml(key) + '</td>';
+                    html += '<td style="padding:8px 0; color:' + statusColor + '; font-weight:bold;">' + escapeHtml(entry.status) + '</td>';
+                    html += '<td style="padding:8px 0; color:var(--text-muted);">' + (escapeHtml(entry.duration) || '-') + '</td>';
                     html += '</tr>';
                 }
             } else {
-                html += '<tr><td colspan="3" style="padding:8px 0;"><pre style="white-space:pre-wrap;">' + JSON.stringify(data, null, 2) + '</pre></td></tr>';
+                html += '<tr><td colspan="3" style="padding:8px 0;"><pre style="white-space:pre-wrap;">' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></td></tr>';
             }
             html += '</table>';
             
             if(data.totalDuration) {
-                html += '<div style="margin-top:12px; font-weight:500; color:var(--text-muted);">Toplam Süre: ' + data.totalDuration + '</div>';
+                html += '<div style="margin-top:12px; font-weight:500; color:var(--text-muted);">Toplam Süre: ' + escapeHtml(data.totalDuration) + '</div>';
             }
             
             contentDiv.innerHTML = html;
         } catch(e) {
-            contentDiv.innerHTML = '<pre style="white-space:pre-wrap; background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace;">' + jsonStr + '</pre>';
+            contentDiv.innerHTML = '<pre style="white-space:pre-wrap; background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace;">' + escapeHtml(jsonStr) + '</pre>';
         }
         document.getElementById('healthModal').showModal();
     }

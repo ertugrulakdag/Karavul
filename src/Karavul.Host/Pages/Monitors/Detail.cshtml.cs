@@ -1,6 +1,7 @@
 using Karavul.Core.DTOs;
 using Karavul.Core.Entities;
 using Karavul.Core.Interfaces;
+using Karavul.Host.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -135,6 +136,9 @@ public class DetailModel : PageModel
 
     public async Task<IActionResult> OnPostRunCheckAsync(string id)
     {
+        if (!HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor))
+            return StatusCode(StatusCodes.Status403Forbidden);
+
         var monitor = await _monitorRepo.GetByIdAsync(id);
         if (monitor == null) return NotFound();
 

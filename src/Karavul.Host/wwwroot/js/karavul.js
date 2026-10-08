@@ -545,3 +545,14 @@ function escapeHtml(text) {
     div.innerText = text;
     return div.innerHTML;
 }
+
+// HTML attribute değerleri için (tırnakları da kaçırır)
+function escapeAttr(text) {
+    if (text === null || text === undefined) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
