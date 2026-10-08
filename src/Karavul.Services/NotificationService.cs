@@ -59,8 +59,8 @@ public class NotificationService
         var code = incident.Code;
         var lang = _configuration["Karavul:Language"] ?? "tr";
         var subject = lang == "en" 
-            ? $"🔴 {monitor.Name}:{incident.Reason}"
-            : $"🔴 {monitor.Name}:{incident.Reason}";
+            ? $"🔴 {monitor.Name}: {incident.Reason}"
+            : $"🔴 {monitor.Name}: {incident.Reason}";
         var message = lang == "en"
             ? $"""
             Code: #{code}
@@ -125,8 +125,8 @@ public class NotificationService
         var code = incident.Code;
         var lang = _configuration["Karavul:Language"] ?? "tr";
         var subject = lang == "en" 
-            ? $"🟢 {monitor.Name}:Resolved"
-            : $"🟢 {monitor.Name}:Sorun Çözüldü";
+            ? $"🟢 {monitor.Name}: Resolved"
+            : $"🟢 {monitor.Name}: Sorun Çözüldü";
         var duration = incident.ResolvedAt.HasValue
             ? (incident.ResolvedAt.Value - incident.StartedAt).ToString(@"hh\:mm\:ss")
             : (lang == "en" ? "unknown" : "bilinmiyor");
