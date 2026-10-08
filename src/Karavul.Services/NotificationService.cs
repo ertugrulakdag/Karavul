@@ -59,8 +59,8 @@ public class NotificationService
         var code = incident.Code;
         var lang = _configuration["Karavul:Language"] ?? "tr";
         var subject = lang == "en" 
-            ? $"🔴 [KARAVUL ALARM] {monitor.Name} - {incident.Reason}"
-            : $"🔴 [KARAVUL ALARM] {monitor.Name} - {incident.Reason}";
+            ? $"🔴 {monitor.Name}:{incident.Reason}"
+            : $"🔴 {monitor.Name}:{incident.Reason}";
         var message = lang == "en"
             ? $"""
             Code: #{code}
@@ -125,15 +125,14 @@ public class NotificationService
         var code = incident.Code;
         var lang = _configuration["Karavul:Language"] ?? "tr";
         var subject = lang == "en" 
-            ? $"🟢 [KARAVUL ALARM] {monitor.Name} - Resolved"
-            : $"🟢 [KARAVUL ALARM] {monitor.Name} - Sorun Çözüldü";
+            ? $"🟢 {monitor.Name}:Resolved"
+            : $"🟢 {monitor.Name}:Sorun Çözüldü";
         var duration = incident.ResolvedAt.HasValue
             ? (incident.ResolvedAt.Value - incident.StartedAt).ToString(@"hh\:mm\:ss")
             : (lang == "en" ? "unknown" : "bilinmiyor");
             
         var message = lang == "en" 
             ? $"""
-            Recovery Notification
             Code: #{code}
             Url: {monitor.Url}
             Status: UP
@@ -141,7 +140,6 @@ public class NotificationService
             Resolved At: {incident.ResolvedAt?.ToLocalTime():dd.MM.yyyy HH:mm:ss}
             """
             : $"""
-            İyileşme Bildirimi
             Kod: #{code}
             Url: {monitor.Url}
             Durum: UP
