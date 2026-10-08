@@ -64,7 +64,7 @@ public class NotificationService
         var message = lang == "en"
             ? $"""
             Code: #{code}
-            Monitor: {monitor.Name}
+            Url: {monitor.Url}
             Status: DOWN
             Reason: {incident.Reason}
             Error: {incident.LastErrorMessage ?? "Unknown"}
@@ -72,7 +72,7 @@ public class NotificationService
             """
             : $"""
             Kod: #{code}
-            Monitor: {monitor.Name}
+            Url: {monitor.Url}
             Durum: DOWN
             Sebep: {incident.Reason}
             Hata: {incident.LastErrorMessage ?? "Bilinmiyor"}
@@ -135,7 +135,7 @@ public class NotificationService
             ? $"""
             Recovery Notification
             Code: #{code}
-            Monitor: {monitor.Name}
+            Url: {monitor.Url}
             Status: UP
             Downtime: {duration}
             Resolved At: {incident.ResolvedAt?.ToLocalTime():dd.MM.yyyy HH:mm:ss}
@@ -143,7 +143,7 @@ public class NotificationService
             : $"""
             İyileşme Bildirimi
             Kod: #{code}
-            Monitor: {monitor.Name}
+            Url: {monitor.Url}
             Durum: UP
             Kesinti Süresi: {duration}
             Çözüm Zamanı: {incident.ResolvedAt?.ToLocalTime():dd.MM.yyyy HH:mm:ss}
