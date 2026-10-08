@@ -5,13 +5,13 @@
 **EN:** Karavul is a locally running Windows Service application designed for uptime and performance monitoring of websites, API endpoints, and services.
 
 ### 📥 En Son Sürümü İndirin / Download the Latest Release
-- **[Sürüm Notları / Release Notes](https://github.com/ertugrulakdag/Karavul/releases/tag/v1.0.4)**
+- **[Sürüm Notları / Release Notes](https://github.com/ertugrulakdag/Karavul/releases/tag/v1.0.5)**
 
 📦 Installation / Kurulum
 
-- **TR:** Linkteki `KaravulSetup_v1.0.4.exe` dosyasını indirin ve çalıştırın. Kurulum tamamlandıktan sonra yönetim paneline `http://127.0.0.1:9060` adresinden erişebilirsiniz.
+- **TR:** Linkteki `KaravulSetup_v1.0.5.exe` dosyasını indirin ve çalıştırın. Kurulum tamamlandıktan sonra yönetim paneline `http://127.0.0.1:9060` adresinden erişebilirsiniz.
 *(Varsayılan Giriş Bilgileri -> Kullanıcı Adı: Admin | Şifre: admin)*
-- **EN:** Download and run the `KaravulSetup_v1.0.4.exe` file below. Once installed, you can access the management panel at `http://127.0.0.1:9060`.
+- **EN:** Download and run the `KaravulSetup_v1.0.5.exe` file below. Once installed, you can access the management panel at `http://127.0.0.1:9060`.
 *(Default Login Credentials -> Username: Admin | Password: admin)*
 ---
 
@@ -75,8 +75,8 @@ dotnet run --project src\Karavul.Host\Karavul.Host.csproj
 
 ### Yöntem 1: Hazır Kurulum Dosyası / Method 1: Ready Installer
 
-**TR:** Sayfanın en üstündeki bağlantıya ([Download KaravulSetup_v1.0.4.exe](#-en-son-sürümü-indirin--download-the-latest-release)) tıklayarak indireceğiniz dosyayı çalıştırın ve ekrandaki adımları izleyin.
-**EN:** Click the link at the top of the page ([Download KaravulSetup_v1.0.4.exe](#-en-son-sürümü-indirin--download-the-latest-release)), run the downloaded file, and follow the on-screen steps.
+**TR:** Sayfanın en üstündeki bağlantıya ([Download KaravulSetup_v1.0.5.exe](#-en-son-sürümü-indirin--download-the-latest-release)) tıklayarak indireceğiniz dosyayı çalıştırın ve ekrandaki adımları izleyin.
+**EN:** Click the link at the top of the page ([Download KaravulSetup_v1.0.5.exe](#-en-son-sürümü-indirin--download-the-latest-release)), run the downloaded file, and follow the on-screen steps.
 
 ### Yöntem 2: Kaynak Koddan Kurulum Dosyası Oluşturmak / Method 2: Generating Installer from Source Code (Inno Setup)
 
@@ -86,7 +86,7 @@ dotnet run --project src\Karavul.Host\Karavul.Host.csproj
 **EN:** Open a terminal in the project root directory (`C:\GIT\Karavul`) and run the following command:
 
 ```bash
-dotnet publish src\Karavul.Host\Karavul.Host.csproj -c Release -r win-x64 --self-contained false -o src\Karavul.Host\bin\Release\net10.0-windows\win-x64\publish
+dotnet publish src\Karavul.Host\Karavul.Host.csproj -c Release -r win-x64 --self-contained false -o C:\Publish\Karavul
 ```
 
 #### Setup Dosyasını Oluşturmak / Creating the Installer
@@ -106,7 +106,7 @@ dotnet publish src\Karavul.Host\Karavul.Host.csproj -c Release -r win-x64 --self
 #### Kurulum Sonrası Klasör Yapısı / Post-Installation Directory Structure
 - **Uygulama Dosyaları / App Files:** `C:\Program Files\Karavul\`
 - **Veritabanı ve Loglar / DB & Logs:** `C:\ProgramData\Karavul\`
-- **Web Arayüz Portu / Web UI Port:** `9066` (TR: Localhost'a kısıtlıdır / EN: Restricted to Localhost)
+- **Web Arayüz Portu / Web UI Port:** `9060` (TR: Localhost'a kısıtlıdır / EN: Restricted to Localhost)
 
 ---
 
@@ -133,6 +133,10 @@ dotnet publish src\Karavul.Host\Karavul.Host.csproj -c Release -r win-x64 --self
    - **TR:** Karavul arayüzünde "Bildirim Geçmişi" tablosunda görünecek temsili isimdir. Görsel amaçlıdır.
    - **EN:** This is the display name that will appear in the "Notification Logs" table in the Karavul UI. It is purely for visual purposes.
 
+3. **Chat ID Alma / Getting the Chat ID:**
+   - **TR:** Bildirim alacak kişi önce botunuzu Telegram'da bulup **Start** (`/start`) demelidir; Telegram, botun kendisine hiç yazmamış birine mesaj atmasına izin vermez. Ardından tarayıcıda `https://api.telegram.org/bot<BotToken>/getUpdates` adresini açın; yanıttaki `"chat":{"id": ...}` değeri o kişinin Chat ID'sidir. Bu değeri Rehber'de veya İletişim Grubu üyesinde **Telegram Chat ID** alanına girin. Grup için botu gruba ekleyip grupta bir mesaj yazın; grup ID'si eksi ile başlar (örn. `-1001234567890`).
+   - **EN:** The recipient must first find your bot in Telegram and press **Start** (`/start`); Telegram does not allow a bot to message someone who has never contacted it. Then open `https://api.telegram.org/bot<BotToken>/getUpdates` in a browser; the `"chat":{"id": ...}` value in the response is that person's Chat ID. Enter it in the **Telegram Chat ID** field in the Directory or on a Contact Group member. For a group, add the bot to the group and send a message there; group IDs start with a minus sign (e.g. `-1001234567890`).
+
 ---
 
 ## Çoklu Dil Desteği / Multi-Language Support (i18n)
@@ -154,7 +158,7 @@ Karavul features **Turkish (tr)** and **English (en)** language support for both
 **TR:** `appsettings.Production.json` (veya `appsettings.Development.json`) dosyası içindeki `Karavul` düğümü altındaki tüm ayarların açıklamaları:
 **EN:** Explanations for all settings under the `Karavul` node in the `appsettings.Production.json` (or `appsettings.Development.json`) file:
 
-- **`WebPort`**: (int) Web yönetim arayüzünün çalışacağı HTTP portudur. / The HTTP port for the web management interface. (Default: 9066)
+- **`WebPort`**: (int) Web yönetim arayüzünün çalışacağı HTTP portudur. / The HTTP port for the web management interface. (Production: 9060, Development: 9066)
 - **`DatabasePath`**: (string) SQLite veritabanı dosyasının tam fiziksel yolu. / Full physical path to the SQLite database file.
 - **`LogPath`**: (string) Log dosyalarının kaydedileceği klasör dizini. / Directory path where log files will be saved.
 - **`RetentionDays`**: (int) Olayların ve bildirim geçmişinin veritabanında kaç gün saklanacağını belirler. / Number of days to keep incidents and notification history before deletion.
