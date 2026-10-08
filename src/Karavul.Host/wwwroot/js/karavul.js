@@ -528,7 +528,7 @@ async function refreshDashboardStats() {
                     <td>
                         <span style="color:${upColor}; font-weight:600;">${m.uptimePercent24h}%</span>
                     </td>
-                    <td style="color:var(--text-muted); font-size:0.8rem;">${m.contactGroupName || '-'}</td>
+                    <td style="color:var(--text-muted); font-size:0.8rem;">${escapeHtml(m.contactGroupName) || '-'}</td>
                     <td>${actionHtml}</td>
                 `;
                 tbody.appendChild(tr);

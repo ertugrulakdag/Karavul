@@ -210,7 +210,8 @@ try
                 }
             }
 
-            if (path.StartsWith("/ContactGroups", StringComparison.OrdinalIgnoreCase))
+            if (path.StartsWith("/ContactGroups", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("/Directory", StringComparison.OrdinalIgnoreCase))
             {
                 if (!isAdmin && !isEditor)
                 {

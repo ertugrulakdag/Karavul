@@ -1,5 +1,6 @@
 using Karavul.Core.Entities;
 using Karavul.Core.Interfaces;
+using Karavul.Host.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -76,6 +77,9 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostResolveAsync(string id)
     {
+        if (!HttpContext.HasRole(Karavul.Core.Enums.UserRole.Admin | Karavul.Core.Enums.UserRole.Editor | Karavul.Core.Enums.UserRole.Operator))
+            return StatusCode(StatusCodes.Status403Forbidden);
+
         var username = HttpContext.Session.GetString("Username") ?? "System";
         await _incidentRepo.ResolveAsync(id, DateTime.UtcNow, isManuallyResolved: true, resolvedBy: username);
         

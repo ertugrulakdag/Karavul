@@ -1,6 +1,7 @@
 using Karavul.Core.Entities;
 using Karavul.Core.Enums;
 using Karavul.Core.Interfaces;
+using Karavul.Host.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -40,6 +41,9 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostDeleteAsync(string id)
     {
+        if (!HttpContext.HasRole(UserRole.Admin | UserRole.Editor))
+            return StatusCode(StatusCodes.Status403Forbidden);
+
         await _repo.DeleteAsync(id);
         TempData["Success"] = "Monitor silindi.";
         return RedirectToPage();
@@ -47,6 +51,9 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostToggleAsync(string id)
     {
+        if (!HttpContext.HasRole(UserRole.Admin | UserRole.Editor))
+            return StatusCode(StatusCodes.Status403Forbidden);
+
         var monitor = await _repo.GetByIdAsync(id);
         if (monitor == null) return NotFound();
 
