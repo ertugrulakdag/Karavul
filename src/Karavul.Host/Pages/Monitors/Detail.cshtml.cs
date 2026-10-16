@@ -151,7 +151,7 @@ public class DetailModel : PageModel
         var openIncidentBefore = await _incidentRepo.GetOpenByMonitorIdAsync(monitor.Id);
         var incident = await _incidentService.ProcessCheckResultAsync(check, monitor);
 
-        if (incident != null && incident.Status == Karavul.Core.Enums.IncidentStatus.Open)
+        if (!check.IsSuccess && incident != null && incident.Status == Karavul.Core.Enums.IncidentStatus.Open)
         {
             await _notificationService.ProcessIncidentNotificationsAsync(incident, monitor, default);
         }

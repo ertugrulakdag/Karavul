@@ -4,6 +4,19 @@
 @inject Karavul.Host.Localization.ILocalizationService Localizer
 @{
     ViewData["Title"] = Model.Monitor?.Name ?? "Monitör Detayı";
+    var healthLabels = System.Text.Json.JsonSerializer.Serialize(new
+    {
+        component = Localizer["bilesen"], status = Localizer["durum"], duration = Localizer["sure"],
+        details = Localizer["ayrintilar"], tags = Localizer["etiketler"], data = Localizer["veri"],
+        exception = Localizer["istisna"], version = Localizer["surum"], environment = Localizer["ortam"],
+        totalDuration = Localizer["toplam-sure"], description = Localizer["aciklama"],
+        server = Localizer["sunucu"], assembly = Localizer["derleme"], assemblies = Localizer["derlemeler"],
+        items = Localizer["kayit"], fields = Localizer["alan"], empty = Localizer["bos-veri"], noDetails = Localizer["ek-ayrinti-yok"]
+    });
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/health-details.css" asp-append-version="true" />
 }
 
 <div class="page-header">
@@ -85,7 +98,11 @@
                             <tr>
                                 <td style="font-size:0.78rem;color:var(--text-muted);">@c.CheckedAt.ToLocalTime().ToString("dd/MM HH:mm:ss")</td>
                                 <td>
-                                    @if (c.IsSuccess)
+                                    @if (c.CheckResultType == CheckResultType.HealthDegraded)
+                                    {
+                                        <span class="badge badge-warning">@Localizer["uyari"]</span>
+                                    }
+                                    else if (c.IsSuccess)
                                     {
                                         <span class="badge badge-up">OK</span>
                                     }
@@ -200,16 +217,16 @@
 }
 
 <!-- Modal for Health JSON -->
-<dialog id="healthModal" style="border:none; border-radius:12px; padding:0; box-shadow:0 20px 40px rgba(0,0,0,0.3); max-width:600px; width:100%; margin:auto; background:var(--bg-surface); color:var(--text-primary); overflow:hidden;">
-    <div style="background:var(--bg-panel); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
+<dialog id="healthModal" class="health-dialog">
+    <div class="health-dialog-header">
         <h2 class="card-title" style="margin:0; font-size:1.2rem; display:flex; align-items:center; gap:8px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" style="color:var(--accent);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            Sağlık Detayları
+            @Localizer["saglik-detaylari"]
         </h2>
         <button onclick="document.getElementById('healthModal').close()" style="background:none;border:none;cursor:pointer;font-size:1.5rem;line-height:1;color:var(--text-muted); transition:color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
     </div>
-    <div style="padding:24px;">
-        <div id="healthModalContent" style="font-size:0.85rem; max-height:400px; overflow-y:auto; background:var(--bg-body); border-radius:8px; border:1px solid var(--border); padding:16px;"></div>
+    <div class="health-dialog-body">
+        <div id="healthModalContent" data-labels="@healthLabels"></div>
     </div>
 </dialog>
 
@@ -227,6 +244,7 @@
     </div>
 </dialog>
 
+<script src="~/js/health-details.js" asp-append-version="true"></script>
 <script>
     function showHeadersModal(id) {
         var jsonStr = document.getElementById('headers-' + id).innerText;
@@ -254,34 +272,7 @@
     function showHealthJson(id) {
         var jsonStr = document.getElementById('json-' + id).innerText;
         var contentDiv = document.getElementById('healthModalContent');
-        try {
-            var data = JSON.parse(jsonStr);
-            var html = '<table style="width:100%; border-collapse:collapse; text-align:left;">';
-            html += '<tr style="border-bottom:1px solid #e2e8f0;"><th>Bileşen</th><th>Durum</th><th>Süre</th></tr>';
-            
-            if (data.entries) {
-                for (var key in data.entries) {
-                    var entry = data.entries[key];
-                    var statusColor = entry.status === 'Healthy' ? 'var(--green)' : (entry.status === 'Degraded' ? 'var(--yellow)' : 'var(--red)');
-                    html += '<tr style="border-bottom:1px solid #f1f5f9;">';
-                    html += '<td style="padding:8px 0; font-weight:500;">' + escapeHtml(key) + '</td>';
-                    html += '<td style="padding:8px 0; color:' + statusColor + '; font-weight:bold;">' + escapeHtml(entry.status) + '</td>';
-                    html += '<td style="padding:8px 0; color:var(--text-muted);">' + (escapeHtml(entry.duration) || '-') + '</td>';
-                    html += '</tr>';
-                }
-            } else {
-                html += '<tr><td colspan="3" style="padding:8px 0;"><pre style="white-space:pre-wrap;">' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></td></tr>';
-            }
-            html += '</table>';
-            
-            if(data.totalDuration) {
-                html += '<div style="margin-top:12px; font-weight:500; color:var(--text-muted);">Toplam Süre: ' + escapeHtml(data.totalDuration) + '</div>';
-            }
-            
-            contentDiv.innerHTML = html;
-        } catch(e) {
-            contentDiv.innerHTML = '<pre style="white-space:pre-wrap; background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace;">' + escapeHtml(jsonStr) + '</pre>';
-        }
+        renderHealthDetails(contentDiv, jsonStr, JSON.parse(contentDiv.dataset.labels));
         document.getElementById('healthModal').showModal();
     }
 </script>

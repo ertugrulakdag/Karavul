@@ -9,5 +9,7 @@ public enum CheckResultType
     ConnectionError = 4,
     ResponseTimeTooHigh = 5,
     SslError = 6,
-    UnexpectedStatusCode = 7
+    UnexpectedStatusCode = 7,
+    StatusError = 8,
+    HealthDegraded = 9
 }

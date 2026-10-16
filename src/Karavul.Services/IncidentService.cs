@@ -28,6 +28,15 @@ public class IncidentService
     {
         var openIncident = await _incidentRepo.GetOpenByMonitorIdAsync(monitor.Id);
 
+        if (check.CheckResultType == CheckResultType.HealthDegraded)
+        {
+            await _monitorRepo.UpdateStatusAsync(monitor.Id, MonitorStatus.Warning,
+                check.StatusCode, check.ResponseTimeMs, check.ErrorMessage);
+
+            // An existing outage is resolved only after a fully healthy check.
+            return openIncident;
+        }
+
         if (!check.IsSuccess)
         {
             var newStatus = check.CheckResultType == CheckResultType.ResponseTimeTooHigh

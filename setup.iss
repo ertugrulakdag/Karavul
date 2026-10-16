@@ -1,7 +1,11 @@
+#ifndef PublishDir
+  #define PublishDir "C:\Publish\Karavul"
+#endif
+
 [Setup]
 AppId={{KARAVUL-MONITOR-001}}
 AppName=Karavul
-AppVersion=1.0.5
+AppVersion=1.0.6
 AppPublisher=Karavul
 AppPublisherURL=https://github.com/ertugrulakdag/karavul
 AppSupportURL=https://github.com/ertugrulakdag/karavul
@@ -9,11 +13,13 @@ AppUpdatesURL=https://github.com/ertugrulakdag/karavul
 VersionInfoCompany=Karavul
 VersionInfoDescription=Karavul Yerel Monitor Servisi
 VersionInfoProductName=Karavul
-VersionInfoProductVersion=1.0.5
+VersionInfoVersion=1.0.6
+VersionInfoProductVersion=1.0.6
 VersionInfoCopyright=Copyright (C) 2026 Karavul
 DefaultDirName={autopf64}\Karavul
 DefaultGroupName=Karavul
-OutputBaseFilename=KaravulSetup_v1.0.5
+OutputDir=Output
+OutputBaseFilename=KaravulSetup_v1.0.6
 Compression=lzma2/ultra64
 SolidCompression=yes
 ArchitecturesAllowed=x64
@@ -35,7 +41,7 @@ Name: "{commonappdata}\Karavul\logs"; Permissions: authusers-modify
 
 [Files]
 ; Publish edilen dosyaları hedef klasöre taşı
-Source: "C:\Publish\Karavul\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "src\Karavul.Host\wwwroot\img\favicon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
@@ -46,7 +52,7 @@ Name: "{commonprograms}\Karavul"; Filename: "http://127.0.0.1:9060"; IconFilenam
 [Run]
 ; Servisi oluştur ve başlat
 Filename: "{sys}\sc.exe"; Parameters: "create KaravulService binPath= ""{app}\Karavul.exe"" start= auto DisplayName= ""Karavul Monitoring Service"""; Flags: runhidden
-Filename: "{sys}\sc.exe"; Parameters: "description KaravulService ""Karavul Yerel Monitor Servisi v1.0.5"""; Flags: runhidden
+Filename: "{sys}\sc.exe"; Parameters: "description KaravulService ""Karavul Yerel Monitor Servisi v1.0.6"""; Flags: runhidden
 
 ; Kurulum bittikten sonra web arayüzünü açmak için (Bitti sayfasında checkbox oluşturur)
 Filename: "http://127.0.0.1:9060"; Description: "Uygulamayı aç."; Flags: postinstall shellexec

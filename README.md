@@ -20,12 +20,14 @@
 **TR:**
 - **HTTP/HTTPS İzleme:** Beklenen durum kodu (status code), yanıt süresi limitleri ve timeout denetimleri.
 - **SSL Sertifika Denetimi:** HTTPS adreslerinin SSL sertifika geçerlilik ve bitiş tarihlerini kontrol etme.
+- **Sağlık JSON İzleme:** “Sağlık Detaylarını (JSON) Oku” açıkken hem `entries` hem `checks` biçimi değerlendirilir. `Healthy` normal, `Degraded` uyarıdır. Genel durumda veya bir bileşende art arda üç `Unhealthy` sonucu, mevcut teyit aralıklarıyla `StatusError` olayı açar. Bildirim; sorunlu bileşenlerin adını, süresini, açıklamasını, etiketlerini ve varsa veri/hata ayrıntılarını, sürüm ve ortam bilgisini içerir. Sistem tekrar sağlıklı olduğunda aynı olay koduyla düzelme bildirimi gönderilir; `Degraded` açık olayı kapatmaz. Manuel kontrol mevcut davranışına uygun olarak olayı doğrudan açar.
 - **Olay (Incident) Yönetimi:** Uygulama kesintilerinde otomatik olay kaydı açma ve kapanma sürelerini hesaplama. Manuel olarak kapatılabilme özelliği.
 - **Bildirimler:** Olay anında İletişim Gruplarına (Contact Group) e-posta, SMS (Mock) ve Telegram üzerinden bildirim gönderme. Tekrar eden alarm (repeat alert) mekanizması.
 
 **EN:**
 - **HTTP/HTTPS Monitoring:** Expected status code, response time limits, and timeout checks.
 - **SSL Certificate Validation:** Checking SSL certificate validity and expiration dates for HTTPS endpoints.
+- **Health JSON Monitoring:** With “Read Health Details (JSON)” enabled, both `entries` and `checks` formats are evaluated. `Healthy` is normal and `Degraded` is a warning. Three consecutive `Unhealthy` results in the aggregate status or a component open a `StatusError` incident using the existing confirmation intervals. Alerts include failing component names, durations, descriptions, tags, available data/exception details, version and environment. A fully healthy result sends recovery with the same incident code; `Degraded` leaves an open incident unresolved. Manual checks retain their existing immediate incident behavior.
 - **Incident Management:** Automatic incident creation during downtime, calculation of downtime durations, and manual resolve capabilities.
 - **Notifications:** Sending notifications via Email, SMS (Mock), and Telegram to Contact Groups during incidents. Includes a repeat alert mechanism.
 

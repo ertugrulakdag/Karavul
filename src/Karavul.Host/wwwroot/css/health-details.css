@@ -1,0 +1,97 @@
+.health-dialog {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0;
+    width: min(1100px, calc(100vw - 32px));
+    max-width: none;
+    max-height: calc(100dvh - 40px);
+    margin: auto;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .4);
+    overflow: hidden;
+}
+
+.health-dialog[open] { display: flex; flex-direction: column; }
+.health-dialog::backdrop { background: rgba(0, 0, 0, .65); }
+.health-dialog-header {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.health-dialog-body { padding: 24px; overflow: auto; min-height: 0; }
+.health-details { font-size: .85rem; line-height: 1.55; min-width: 0; }
+.health-report, .health-component-body, .health-group-content { min-width: 0; }
+.health-report-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+.health-report-summary > .health-duration { margin-left: auto; }
+.health-label, .health-count, .health-section-label { color: var(--text-muted); font-size: .78rem; }
+.health-status { white-space: nowrap; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: var(--bg-elevated); }
+.health-status[data-state="green"] { background: var(--green-dim); }
+.health-status[data-state="yellow"] { background: var(--yellow-dim); }
+.health-status[data-state="red"] { background: var(--red-dim); }
+.health-duration { color: var(--text-secondary); white-space: nowrap; font-variant-numeric: tabular-nums; font-size: .8rem; }
+
+.health-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    gap: 12px 20px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg-base);
+    border-radius: 6px;
+    margin: 0 0 14px;
+}
+.health-field { min-width: 0; }
+.health-field dt { color: var(--text-muted); font-size: .74rem; margin-bottom: 3px; overflow-wrap: anywhere; }
+.health-field dd { margin: 0; color: var(--text-primary); overflow-wrap: anywhere; white-space: pre-wrap; }
+.health-description { margin: 0 0 12px; color: var(--text-secondary); overflow-wrap: anywhere; white-space: pre-wrap; }
+
+.health-component { border: 1px solid var(--border); border-radius: 7px; margin-bottom: 10px; min-width: 0; }
+.health-component > summary {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    list-style: none;
+    background: var(--bg-elevated);
+    border-radius: 7px;
+}
+.health-component > summary::before, .health-data-group > summary::before { content: '›'; color: var(--text-muted); font-size: 1.2rem; line-height: 1; transition: transform .15s; }
+.health-component[open] > summary::before, .health-data-group[open] > summary::before { transform: rotate(90deg); }
+.health-component > summary::-webkit-details-marker, .health-data-group > summary::-webkit-details-marker { display: none; }
+.health-component > summary:focus-visible, .health-data-group > summary:focus-visible { outline: 2px solid var(--accent-hover); outline-offset: -2px; }
+.health-component > summary:hover, .health-data-group > summary:hover { background: var(--bg-hover); }
+.health-component-name { min-width: 0; overflow-wrap: anywhere; font-size: .87rem; }
+.health-component[open] > summary { border-bottom: 1px solid var(--border); border-radius: 7px 7px 0 0; }
+.health-component-body { padding: 14px; }
+.health-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
+.health-tag { color: var(--text-secondary); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 4px; padding: 1px 7px; font-size: .73rem; overflow-wrap: anywhere; }
+.health-extra + .health-extra { margin-top: 14px; }
+.health-section-label { font-weight: 500; margin: 0 0 8px; }
+.health-empty { color: var(--text-muted); font-style: italic; }
+
+.health-data-group { min-width: 0; margin: 8px 0; }
+.health-data-group > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 9px 10px; cursor: pointer; list-style: none; border-radius: 5px; background: var(--bg-elevated); }
+.health-group-name { min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.health-group-content { border-left: 2px solid var(--border); margin: 12px 0 0 10px; padding: 0 0 2px 14px; }
+.health-value-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; }
+.health-value-list li { padding: 3px 8px; background: var(--bg-elevated); border-radius: 4px; overflow-wrap: anywhere; }
+.health-raw { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; font: .8rem/1.6 Consolas, monospace; }
+.health-scalar { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+@media (max-width: 600px) {
+    .health-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+    .health-dialog-header { padding: 16px; }
+    .health-dialog-body { padding: 12px; }
+    .health-component > summary { grid-template-columns: 10px minmax(0, 1fr) auto; gap: 6px 10px; padding: 10px; }
+    .health-component > summary > .health-duration { grid-column: 2 / 4; }
+    .health-component-body { padding: 10px; }
+    .health-group-content { margin-left: 3px; padding-left: 9px; }
+    .health-report-summary > .health-duration { margin-left: 0; }
+}

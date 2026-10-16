@@ -2,6 +2,7 @@ using System.Security.Cryptography.X509Certificates;
 using Karavul.Core.Entities;
 using Karavul.Core.Enums;
 using Karavul.Core.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MonitorTarget = Karavul.Core.Entities.MonitorTarget;
 
@@ -12,15 +13,18 @@ public class MonitorCheckService
     private readonly IMonitorCheckRepository _checkRepo;
     private readonly ISslCheckRepository _sslRepo;
     private readonly ILogger<MonitorCheckService> _logger;
+    private readonly IConfiguration _configuration;
 
     public MonitorCheckService(
         IMonitorCheckRepository checkRepo,
         ISslCheckRepository sslRepo,
-        ILogger<MonitorCheckService> logger)
+        ILogger<MonitorCheckService> logger,
+        IConfiguration configuration)
     {
         _checkRepo = checkRepo;
         _sslRepo = sslRepo;
         _logger = logger;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -125,6 +129,13 @@ public class MonitorCheckService
                 }
             }
 
+            // Keep the payload on failures as well (health endpoints often return HTTP 503).
+            HealthCheckReport? healthReport = null;
+            if (monitor.IsHealthJson && response.Content != null)
+            {
+                check.HealthJson = await response.Content.ReadAsStringAsync(ct);
+                healthReport = HealthCheckReport.Parse(check.HealthJson);
+            }
 
             if ((int)response.StatusCode == monitor.ExpectedStatusCode)
             {
@@ -138,18 +149,6 @@ public class MonitorCheckService
                 {
                     check.IsSuccess = true;
                     check.CheckResultType = CheckResultType.Success;
-
-                    if (monitor.IsHealthJson)
-                    {
-                        try
-                        {
-                            check.HealthJson = await response.Content.ReadAsStringAsync(ct);
-                        }
-                        catch
-                        {
-                            // ignore json read errors
-                        }
-                    }
                 }
             }
             else
@@ -157,6 +156,19 @@ public class MonitorCheckService
                 check.IsSuccess = false;
                 check.CheckResultType = CheckResultType.UnexpectedStatusCode;
                 check.ErrorMessage = $"Expected {monitor.ExpectedStatusCode}, got {(int)response.StatusCode}";
+            }
+
+            if (healthReport?.IsUnhealthy == true)
+            {
+                check.IsSuccess = false;
+                check.CheckResultType = CheckResultType.StatusError;
+                check.ErrorMessage = healthReport.DescribeProblem(_configuration["Karavul:Language"] ?? "tr", check.StatusCode);
+            }
+            else if (check.IsSuccess && healthReport?.IsDegraded == true)
+            {
+                // Available, but not fully healthy: show a warning without opening a DOWN incident.
+                check.CheckResultType = CheckResultType.HealthDegraded;
+                check.ErrorMessage = healthReport.DescribeProblem(_configuration["Karavul:Language"] ?? "tr", check.StatusCode);
             }
         }
         catch (TaskCanceledException)
